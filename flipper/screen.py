@@ -7,7 +7,6 @@ import serial
 
 import numpy
 
-from PIL import Image
 
 
 class FlipperSerial:
@@ -37,7 +36,7 @@ class FlipperSerial:
     def stop(self):
         self.port.close()
 
-    def cli(self, line):
+    def cli(self):
         self.port.write(b"\nscreen_stream\r\n")   #once
         self.port.read_until(bytes.fromhex('F0E1D2C3'))
         data = self.port.read(int(res_x*res_y/8))
@@ -64,21 +63,10 @@ class FlipperSerial:
      	   basey += 8
      	   x = 0
 
-	# Unicode
-	for y in range(0, res_y, 2):
- 	   for x in range(1, res_x+1):
-  	      if int(scr[x][y]) == 1 and int(scr[x][y+1]) == 1:
-   	         print(u'\u2588', end='')
-   	     if int(scr[x][y]) == 0 and int(scr[x][y+1]) == 1:
-   	         print(u'\u2584', end='')
-   	     if int(scr[x][y]) == 1 and int(scr[x][y+1]) == 0:
-   	         print(u'\u2580', end='')
-   	     if int(scr[x][y]) == 0 and int(scr[x][y+1]) == 0:
-   	         print(' ', end='')
-   	 print()
+	return(x,y)
 
 
-    def file(self, filenam):
+    def file(self):
         self.port.write(b"\nscreen_stream\r\n")   #once
         self.port.read_until(bytes.fromhex('F0E1D2C3'))
         data = self.port.read(int(res_x*res_y/8))
@@ -130,9 +118,4 @@ class FlipperSerial:
 	                    img[yy][xx] = col_white
 	                    #img[y*scale][(x-1)*scale] = col_white
 	
-	im = Image.new('RGB', (res_x, res_y))
-	im = Image.fromarray(img)
-	im.save('screen.png')
-	print('Saved to screen.png')
-	return im
-
+	return (res_x, res_y)
