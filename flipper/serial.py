@@ -100,4 +100,3 @@ class FlipperSerial:
         """Extract error text from data and print it"""
         error, error_text = data.decode("ascii").split(": ")
         return error_text.strip()
-
