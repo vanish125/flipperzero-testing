@@ -8,6 +8,7 @@ import os
 import sys
 import binascii
 import posixpath
+from PIL import Image
 
 
 
@@ -86,22 +87,44 @@ class Main:
         	if not serial.mkdir(self.args.flipper_path):
         	    self.logger.error(f"Error: {storage.last_error}")
        	 serial.stop()
+       	 
+       	 
+       def cli(self):
+        screen = FlipperScreen(self.args.port)
+        screen.start()
+        self.logger.debug(f'Screenshot in cli')
+        x,y = screen.cli()
+        if not data:
+            self.logger.error(f"Error")
+        else:
+            try:
+                print("Text data:")
+                print(data.decode())
+            except:
+                print("Display:")
+                for y in range(0, res_y, 2):
+ 	   		for x in range(1, res_x+1):
+  	     	 if int(scr[x][y]) == 1 and int(scr[x][y+1]) == 1:
+   	         print(u'\u2588', end='')
+   	   	  if int(scr[x][y]) == 0 and int(scr[x][y+1]) == 1:
+   	         print(u'\u2584', end='')
+   	   	  if int(scr[x][y]) == 1 and int(scr[x][y+1]) == 0:
+   	         print(u'\u2580', end='')
+   	     	if int(scr[x][y]) == 0 and int(scr[x][y+1]) == 0:
+   	         print(' ', end='')
+   	 print()
+        storage.stop()
 
 
     def image(self):
         screen = FlipperScreen(self.args.port)
         screen.start()
         self.logger.debug(f'Screenshot')
-        data = screen.file(self.args.screen_path)
-        if not data:
-            self.logger.error(f"Error: {storage.last_error}")
-        else:
-            try:
-                print("Text data:")
-                print(data.decode())
-            except:
-                print("Binary hexadecimal data:")
-                print(binascii.hexlify(data).decode())
+        res_x, res_y = screen.file(self.args.screen_path)
+	im = Image.new('RGB', (res_x, res_y))
+	im = Image.fromarray(img)
+	im.save('screen.png')
+	print('Saved to screen.png')
         storage.stop()
 
 
