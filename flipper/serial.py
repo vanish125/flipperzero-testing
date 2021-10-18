@@ -79,7 +79,6 @@ class FlipperSerial:
         self.send("input_send back press\r")
         self.send("input_send back short\r")
         self.send("input_send back release\r")
-        
 
     def send_and_wait_eol(self, line):
         self.send(line)
