@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 
 from flipper.serial import FlipperSerial
-from flipper.screen import FlipperScreen
 import logging
 import argparse
 import os
 import sys
 import binascii
 import posixpath
-from PIL import Image
+import subprocess
+import time
 
 
 class Main:
@@ -17,12 +17,22 @@ class Main:
         self.logger = logging.getLogger()
         # command args
         self.parser = argparse.ArgumentParser()
-        self.parser.add_argument("-d", "--debug", action="store_true", help="Debug")
-        self.parser.add_argument("-p", "--port", help="CDC Port", required=True)
+        self.parser.add_argument(
+            "-d", "--debug", action="store_true", help="Debug")
+        self.parser.add_argument(
+            "-p", "--port", help="CDC Port", required=True)
         self.subparsers = self.parser.add_subparsers(help="sub-command help")
 
-        self.parser_cli = self.subparsers.add_parser("cli", help="Cli")
+        self.parser_cli = self.subparsers.add_parser(
+            "cli", help="Screen in cli")
         self.parser_cli.set_defaults(func=self.cli)
+
+        self.parser_image = self.subparsers.add_parser(
+            "image", help="Make image screenshot")
+        self.parser_image.set_defaults(func=self.image)
+
+        self.parser_test = self.subparsers.add_parser("test", help="Test HW")
+        self.parser_test.set_defaults(func=self.test)
 
     def __call__(self):
         self.args = self.parser.parse_args()
@@ -33,64 +43,31 @@ class Main:
         self.logger.setLevel(self.log_level)
         self.handler = logging.StreamHandler(sys.stdout)
         self.handler.setLevel(self.log_level)
-        self.formatter = logging.Formatter("%(asctime)s [%(levelname)s] %(message)s")
+        self.formatter = logging.Formatter(
+            "%(asctime)s [%(levelname)s] %(message)s")
         self.handler.setFormatter(self.formatter)
         self.logger.addHandler(self.handler)
         # execute requested function
         self.args.func()
 
     def cli(self):
-        screen = FlipperScreen(self.args.port)
-        screen.start()
-        self.logger.debug(f"Screenshot in cli")
-        x, y = screen.cli()
-        if not data:
-            self.logger.error(f"Error")
-        else:
-            try:
-                print("Text data:")
-                print(data.decode())
-            except:
-                print("Display:")
-                for y in range(0, res_y, 2):
-                    for x in range(1, res_x + 1):
-                        if int(scr[x][y]) == 1 and int(scr[x][y + 1]) == 1:
-                            print("\u2588", end="")
-                        if int(scr[x][y]) == 0 and int(scr[x][y + 1]) == 1:
-                            print("\u2584", end="")
-                        if int(scr[x][y]) == 1 and int(scr[x][y + 1]) == 0:
-                            print("\u2580", end="")
-                        if int(scr[x][y]) == 0 and int(scr[x][y + 1]) == 0:
-                            print(" ", end="")
-                    print()
-        storage.stop()
+        subprocess.Popen(['python3', 'screen_stream.py', self.args.port])
 
     def image(self):
-        screen = FlipperScreen(self.args.port)
-        screen.start()
-        self.logger.debug(f"Screenshot")
-        res_x, res_y = screen.file(self.args.screen_path)
-        im = Image.new("RGB", (res_x, res_y))
-        im = Image.fromarray(img)
-        im.save("screen.png")
-        print("Saved to screen.png")
-        storage.stop()
+        self.imageFile('screen.png')
 
-    def read(self):
-        storage = FlipperStorage(self.args.port)
-        storage.start()
-        self.logger.debug(f'Reading "{self.args.flipper_path}"')
-        data = storage.read_file(self.args.flipper_path)
-        if not data:
-            self.logger.error(f"Error: {storage.last_error}")
-        else:
-            try:
-                print("Text data:")
-                print(data.decode())
-            except:
-                print("Binary hexadecimal data:")
-                print(binascii.hexlify(data).decode())
-        storage.stop()
+    def imageFile(self, line):
+        subprocess.Popen(['python3', 'screen.py', self.args.port, line])
+
+    def test(self):
+        test = FlipperSerial(self.args.port)
+        test.start()
+        test.ok()
+        time.sleep(0.5)
+        test.back()
+        time.sleep(0.5)
+        test.stop()
+        self.imageFile('test.png')
 
 
 if __name__ == "__main__":

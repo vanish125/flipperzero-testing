@@ -75,11 +75,6 @@ class FlipperSerial:
     def send(self, line):
         self.port.write(line.encode("ascii"))
 
-    def back(self, line):
-        self.send("input_send back press\r")
-        self.send("input_send back short\r")
-        self.send("input_send back release\r")
-
     def send_and_wait_eol(self, line):
         self.send(line)
         return self.read.until(self.CLI_EOL)
@@ -99,3 +94,35 @@ class FlipperSerial:
         """Extract error text from data and print it"""
         error, error_text = data.decode("ascii").split(": ")
         return error_text.strip()
+
+
+
+    def up(self):
+        self.send("input_send up press\r")
+        self.send("input_send up short\r")
+        self.send("input_send up release\r")
+    
+    def down(self):
+        self.send("input_send down press\r")
+        self.send("input_send down short\r")
+        self.send("input_send down release\r")
+
+    def left(self):
+        self.send("input_send left press\r")
+        self.send("input_send left short\r")
+        self.send("input_send left release\r")
+
+    def right(self):
+        self.send("input_send right press\r")
+        self.send("input_send right short\r")
+        self.send("input_send right release\r")
+
+    def ok(self):
+        self.send("input_send ok press\r")
+        self.send("input_send ok short\r")
+        self.send("input_send ok release\r")
+
+    def back(self):
+        self.send("input_send back press\r")
+        self.send("input_send back short\r")
+        self.send("input_send back release\r")
