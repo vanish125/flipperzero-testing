@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 from flipper.serial import FlipperSerial
+from flipper.tests import tests
 import logging
 import argparse
 import os
@@ -60,13 +61,7 @@ class Main:
         subprocess.Popen(['python3', 'screen.py', self.args.port, line])
 
     def test(self):
-        test = FlipperSerial(self.args.port)
-        test.start()
-        test.ok()
-        time.sleep(0.5)
-        test.back()
-        time.sleep(0.5)
-        test.stop()
+        tests.test(self)
         self.imageFile('test.png')
 
 

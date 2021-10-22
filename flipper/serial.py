@@ -101,28 +101,34 @@ class FlipperSerial:
         self.send("input_send up press\r")
         self.send("input_send up short\r")
         self.send("input_send up release\r")
+        time.sleep(0.2)
     
     def down(self):
         self.send("input_send down press\r")
         self.send("input_send down short\r")
         self.send("input_send down release\r")
+        time.sleep(0.2)
 
     def left(self):
         self.send("input_send left press\r")
         self.send("input_send left short\r")
         self.send("input_send left release\r")
+        time.sleep(0.2)
 
     def right(self):
         self.send("input_send right press\r")
         self.send("input_send right short\r")
         self.send("input_send right release\r")
+        time.sleep(0.2)
 
     def ok(self):
         self.send("input_send ok press\r")
         self.send("input_send ok short\r")
         self.send("input_send ok release\r")
+        time.sleep(0.2)
 
     def back(self):
         self.send("input_send back press\r")
         self.send("input_send back short\r")
         self.send("input_send back release\r")
+        time.sleep(0.2)
