@@ -95,7 +95,13 @@ class FlipperSerial:
         error, error_text = data.decode("ascii").split(": ")
         return error_text.strip()
 
-
+    def main(self):
+        for i in range(10): 
+            self.send("input_send back press\r")
+            self.send("input_send back short\r")
+            self.send("input_send back release\r")
+            time.sleep(0.1)
+        time.sleep(0.2)
 
     def up(self):
         self.send("input_send up press\r")
@@ -130,5 +136,41 @@ class FlipperSerial:
     def back(self):
         self.send("input_send back press\r")
         self.send("input_send back short\r")
+        self.send("input_send back release\r")
+        time.sleep(0.2)
+
+    def lup(self):
+        self.send("input_send up press\r")
+        self.send("input_send up long\r")
+        self.send("input_send up release\r")
+        time.sleep(0.2)
+    
+    def ldown(self):
+        self.send("input_send down press\r")
+        self.send("input_send down long\r")
+        self.send("input_send down release\r")
+        time.sleep(0.2)
+
+    def lleft(self):
+        self.send("input_send left press\r")
+        self.send("input_send left long\r")
+        self.send("input_send left release\r")
+        time.sleep(0.2)
+
+    def lright(self):
+        self.send("input_send right press\r")
+        self.send("input_send right long\r")
+        self.send("input_send right release\r")
+        time.sleep(0.2)
+
+    def lk(self):
+        self.send("input_send ok press\r")
+        self.send("input_send ok long\r")
+        self.send("input_send ok release\r")
+        time.sleep(0.2)
+
+    def lback(self):
+        self.send("input_send back press\r")
+        self.send("input_send back long\r")
         self.send("input_send back release\r")
         time.sleep(0.2)
