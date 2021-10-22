@@ -3,7 +3,7 @@ import time
 
 class tests:
 
-    def FWself):  
+    def FW(self):  
         self.main()
         self.ldown()
 
