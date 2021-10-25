@@ -56,7 +56,7 @@ class FlipperSerial:
         self.port = serial.Serial()
         self.port.port = portname
         self.port.timeout = 2
-        self.port.baudrate = 115200
+        self.port.baudrate = 230400
         self.read = BufferedRead(self.port)
         self.last_error = ""
 
@@ -77,11 +77,11 @@ class FlipperSerial:
 
     def send_and_wait_eol(self, line):
         self.send(line)
-        return self.read.until(self.CLI_EOL)
+        return self.read.until(self.CLI_EOL).decode("ascii")
 
     def send_and_wait_prompt(self, line):
         self.send(line)
-        return self.read.until(self.CLI_PROMPT)
+        return self.read.until(self.CLI_PROMPT).decode("ascii")
 
     def has_error(self, data):
         """Is data has error"""
@@ -96,81 +96,81 @@ class FlipperSerial:
         return error_text.strip()
 
     def main(self):
-        for i in range(10): 
+        for i in range(7): 
             self.send("input_send back press\r")
             self.send("input_send back short\r")
             self.send("input_send back release\r")
-            time.sleep(0.1)
-        time.sleep(0.2)
+            time.sleep(0.15)
+        time.sleep(0.15)
 
     def up(self):
         self.send("input_send up press\r")
         self.send("input_send up short\r")
         self.send("input_send up release\r")
-        time.sleep(0.2)
+        time.sleep(0.15)
     
     def down(self):
         self.send("input_send down press\r")
         self.send("input_send down short\r")
         self.send("input_send down release\r")
-        time.sleep(0.2)
+        time.sleep(0.15)
 
     def left(self):
         self.send("input_send left press\r")
         self.send("input_send left short\r")
         self.send("input_send left release\r")
-        time.sleep(0.2)
+        time.sleep(0.15)
 
     def right(self):
         self.send("input_send right press\r")
         self.send("input_send right short\r")
         self.send("input_send right release\r")
-        time.sleep(0.2)
+        time.sleep(0.15)
 
     def ok(self):
         self.send("input_send ok press\r")
         self.send("input_send ok short\r")
         self.send("input_send ok release\r")
-        time.sleep(0.2)
+        time.sleep(0.15)
 
     def back(self):
         self.send("input_send back press\r")
         self.send("input_send back short\r")
         self.send("input_send back release\r")
-        time.sleep(0.2)
+        time.sleep(0.15)
 
     def lup(self):
         self.send("input_send up press\r")
         self.send("input_send up long\r")
         self.send("input_send up release\r")
-        time.sleep(0.2)
+        time.sleep(0.15)
     
     def ldown(self):
         self.send("input_send down press\r")
         self.send("input_send down long\r")
         self.send("input_send down release\r")
-        time.sleep(0.2)
+        time.sleep(0.15)
 
     def lleft(self):
         self.send("input_send left press\r")
         self.send("input_send left long\r")
         self.send("input_send left release\r")
-        time.sleep(0.2)
+        time.sleep(0.15)
 
     def lright(self):
         self.send("input_send right press\r")
         self.send("input_send right long\r")
         self.send("input_send right release\r")
-        time.sleep(0.2)
+        time.sleep(0.15)
 
     def lk(self):
         self.send("input_send ok press\r")
         self.send("input_send ok long\r")
         self.send("input_send ok release\r")
-        time.sleep(0.2)
+        time.sleep(0.15)
 
     def lback(self):
         self.send("input_send back press\r")
         self.send("input_send back long\r")
         self.send("input_send back release\r")
-        time.sleep(0.2)
+        time.sleep(0.15)

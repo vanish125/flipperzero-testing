@@ -9,11 +9,14 @@ import numpy
 
 from PIL import Image
 
+image_path = "out"
+
 res_x = 128
 res_y = 64
 name = sys.argv[2]
 
 ser = serial.Serial(sys.argv[1])
+ser.baudrate = 230400
 ser.write(b"\nscreen_stream\r\n")   #once
 ser.read_until(bytes.fromhex('F0E1D2C3'))
 data = ser.read(int(res_x*res_y/8))
@@ -79,6 +82,6 @@ for y in range(0, res_y):
 
 im = Image.new('RGB', (res_x, res_y))
 im = Image.fromarray(img)
-im.save(name)
+im.save(f'{image_path}/{name}')
 
 print('Saved to name', name)

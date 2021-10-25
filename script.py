@@ -26,6 +26,12 @@ class Main:
         self.parser_image.set_defaults(func=self.image)
         self.parser_version = self.subparsers.add_parser("version", help="Version")
         self.parser_version.set_defaults(func=self.version)
+        self.parser_PowerTest = self.subparsers.add_parser("PowerTest", help="PowerTest")
+        self.parser_PowerTest.set_defaults(func=self.PowerTest)
+        self.parser_HeapTest = self.subparsers.add_parser("HeapTest", help="HeapTest")
+        self.parser_HeapTest.set_defaults(func=self.HeapTest)
+        self.parser_PowerInfo = self.subparsers.add_parser("PowerInfo", help="PowerInfo")
+        self.parser_PowerInfo.set_defaults(func=self.PowerInfo)
 
 
 
@@ -47,14 +53,14 @@ class Main:
 
     def cli(self):
         subprocess.Popen(['python3', 'screen_stream.py', self.args.port])
-        time.sleep(1)
+        time.sleep(0.5)
 
     def image(self):
         self.imageFile('screen.png')
 
     def imageFile(self, line):
         subprocess.Popen(['python3', 'screen.py', self.args.port, line])
-        time.sleep(1)
+        time.sleep(0.5)
 
     def version(self):
         port = FlipperSerial(self.args.port)
@@ -63,6 +69,35 @@ class Main:
         self.imageFile('Boot.png')
         tests.FW(port)
         self.imageFile('FW.png')
+        port.stop()
+
+    def PowerTest(self):
+        port = FlipperSerial(self.args.port)
+        port.start()
+        tests.powermax(port)
+        time.sleep(3)
+        tests.powermin(port)
+        tests.PowerInfo(port)
+        self.imageFile('Power.png')
+        port.stop()
+
+    def HeapTest(self):
+        port = FlipperSerial(self.args.port)
+        port.start()
+        data = port.send_and_wait_prompt("free\r")
+        print('Clean: ', data)
+        tests.allapps(port)
+        port.stop()
+        port.start()
+        data = port.send_and_wait_prompt("free\r")
+        print('AllApps: ', data)
+        port.stop()
+
+    def PowerInfo(self):
+        port = FlipperSerial(self.args.port)
+        port.start()
+        data = port.send_and_wait_prompt("power_info\r")
+        print(data)
         port.stop()
 
 

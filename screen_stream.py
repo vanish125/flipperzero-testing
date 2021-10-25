@@ -12,6 +12,7 @@ res_y = 64
 n = 0
 
 ser = serial.Serial(sys.argv[1])
+ser.baudrate = 230400
 ser.write(b"\nscreen_stream\r")   #once
 while n == 0:
     ser.read_until(bytes.fromhex('F0E1D2C3'))
