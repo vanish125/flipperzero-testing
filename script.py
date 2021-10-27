@@ -9,6 +9,7 @@ import sys
 import subprocess
 import time
 
+BTstring = 'Ret: 0, HCI_Version: 11, HCI_Revision: 87, LMP_PAL_Version: 11, Manufacturer_Name: 48, LMP_PAL_Subversion: 8535\r\n'
 
 class Main:
     def __init__(self):
@@ -32,6 +33,12 @@ class Main:
         self.parser_HeapTest.set_defaults(func=self.HeapTest)
         self.parser_PowerInfo = self.subparsers.add_parser("PowerInfo", help="PowerInfo")
         self.parser_PowerInfo.set_defaults(func=self.PowerInfo)
+        self.parser_CheckOB = self.subparsers.add_parser("CheckOB", help="CheckOB")
+        self.parser_CheckOB.set_defaults(func=self.CheckOB)
+        self.parser_BTcheck = self.subparsers.add_parser("BTcheck", help="BTcheck")
+        self.parser_BTcheck.set_defaults(func=self.BTcheck)
+        self.parser_IntFree = self.subparsers.add_parser("IntFree", help="IntFree")
+        self.parser_IntFree.set_defaults(func=self.IntFree)
 
 
 
@@ -62,6 +69,10 @@ class Main:
         subprocess.Popen(['python3', 'screen.py', self.args.port, line])
         time.sleep(0.5)
 
+    def CheckOB(self):
+        subprocess.Popen(['python3', '../flipperzero-firmware/scripts/ob.py', 'check'])
+        time.sleep(0.5)
+
     def version(self):
         port = FlipperSerial(self.args.port)
         port.start()
@@ -85,12 +96,12 @@ class Main:
         port = FlipperSerial(self.args.port)
         port.start()
         data = port.send_and_wait_prompt("free\r")
-        print('Clean: ', data)
+        print('Clean:\r\n', data)
         tests.allapps(port)
         port.stop()
         port.start()
         data = port.send_and_wait_prompt("free\r")
-        print('AllApps: ', data)
+        print('AllApps:\r\n', data)
         port.stop()
 
     def PowerInfo(self):
@@ -100,6 +111,22 @@ class Main:
         print(data)
         port.stop()
 
+    def BTcheck(self):
+        port = FlipperSerial(self.args.port)
+        port.start()
+        data = port.send_and_wait_prompt("bt_info\r")
+        if data == BTstring:
+            print(data)
+        else: print('error\r')
+        port.stop()
+
+    def IntFree(self):
+        port = FlipperSerial(self.args.port)
+        port.start()
+        data = port.send_and_wait_prompt("storage info /int\r")
+        data= data[len('Label: Barsik  Type:  LittleFS '):]
+        print(data)
+        port.stop()
 
 
 if __name__ == "__main__":

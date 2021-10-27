@@ -65,7 +65,7 @@ class FlipperSerial:
         self.port.reset_input_buffer()
         # Send a command with a known syntax to make sure the buffer is flushed
         self.send("device_info\r")
-        self.read.until("hardware_model      :")
+        self.read.until("hardware_model")
         # And read buffer until we get prompt
         self.read.until(self.CLI_PROMPT)
 
@@ -81,7 +81,10 @@ class FlipperSerial:
 
     def send_and_wait_prompt(self, line):
         self.send(line)
-        return self.read.until(self.CLI_PROMPT).decode("ascii")
+        data = self.read.until(self.CLI_PROMPT).decode("ascii")
+        data = data[len(line)+1:]
+        return data
+
 
     def has_error(self, data):
         """Is data has error"""
@@ -96,7 +99,7 @@ class FlipperSerial:
         return error_text.strip()
 
     def main(self):
-        for i in range(7): 
+        for i in range(10): 
             self.send("input_send back press\r")
             self.send("input_send back short\r")
             self.send("input_send back release\r")
