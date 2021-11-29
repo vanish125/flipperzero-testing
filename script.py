@@ -148,7 +148,7 @@ class Main:
           subprocess.Popen(['python3', 'reboot.py', self.args.port, 'dfu'])        
           time.sleep(1.5)
           self.ExitDFU()
-          time.sleep(1.5)
+          time.sleep(2)
 
 
 if __name__ == "__main__":
