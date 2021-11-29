@@ -84,4 +84,4 @@ im = Image.new('RGB', (res_x, res_y))
 im = Image.fromarray(img)
 im.save(f'{image_path}/{name}')
 
-print('Saved to name', name)
+print('Saved to', name)

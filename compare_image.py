@@ -8,18 +8,16 @@ from PIL import Image
 from PIL import ImageChops
 
 image_path = "out"
+orig_path = "orig"
 
-name1 = sys.argv[1]
-name1 = sys.argv[2]
+name = sys.argv[1]
 
+image_one = Image.open(f'{image_path}/{name}').convert('RGB')
+image_two = Image.open(f'{orig_path}/{name}').convert('RGB')
 
+diff = ImageChops.difference(image_one, image_two).getbbox()
 
-image_one = Image.open(f'{image_path}/{name1}').convert('RGB')
-image_two = Image.open(f'{image_path}/{name2}').convert('RGB')
-
-diff = ImageChops.difference(image_one, image_two)
-
-if diff.getbbox():
+if diff==None:
     print("Ok")
 else:
     print("Error")

@@ -24,6 +24,7 @@ class Main:
         self.parser_cli = self.subparsers.add_parser("cli", help="Screen in cli")
         self.parser_cli.set_defaults(func=self.cli)
         self.parser_image = self.subparsers.add_parser("image", help="Make image screenshot")
+        self.parser_image.add_argument("name", help="Name file")
         self.parser_image.set_defaults(func=self.image)
         self.parser_version = self.subparsers.add_parser("version", help="Version")
         self.parser_version.set_defaults(func=self.version)
@@ -39,6 +40,10 @@ class Main:
         self.parser_BTcheck.set_defaults(func=self.BTcheck)
         self.parser_IntFree = self.subparsers.add_parser("IntFree", help="IntFree")
         self.parser_IntFree.set_defaults(func=self.IntFree)
+        self.parser_ExitDFU = self.subparsers.add_parser("ExitDFU", help="ExitDFU")
+        self.parser_ExitDFU.set_defaults(func=self.ExitDFU)
+        self.parser_UsbTest = self.subparsers.add_parser("UsbTest", help="UsbTest")
+        self.parser_UsbTest.set_defaults(func=self.UsbTest)
 
 
 
@@ -63,7 +68,7 @@ class Main:
         time.sleep(0.5)
 
     def image(self):
-        self.imageFile('screen.png')
+        self.imageFile(self.args.name)
 
     def imageFile(self, line):
         subprocess.Popen(['python3', 'screen.py', self.args.port, line])
@@ -71,6 +76,10 @@ class Main:
 
     def CheckOB(self):
         subprocess.Popen(['python3', '../flipperzero-firmware/scripts/ob.py', 'check'])
+        time.sleep(0.5)
+
+    def ExitDFU(self):
+        subprocess.Popen(['python3', 'pydfu.py', '-x'])
         time.sleep(0.5)
 
     def version(self):
@@ -95,26 +104,26 @@ class Main:
     def HeapTest(self):
         port = FlipperSerial(self.args.port)
         port.start()
-        data = port.send_and_wait_prompt("free\r")
+        data = port.send_and_wait_prompt("free")
         print('Clean:\r\n', data)
         tests.allapps(port)
         port.stop()
         port.start()
-        data = port.send_and_wait_prompt("free\r")
+        data = port.send_and_wait_prompt("free")
         print('AllApps:\r\n', data)
         port.stop()
 
     def PowerInfo(self):
         port = FlipperSerial(self.args.port)
         port.start()
-        data = port.send_and_wait_prompt("power_info\r")
+        data = port.send_and_wait_prompt("power_info")
         print(data)
         port.stop()
 
     def BTcheck(self):
         port = FlipperSerial(self.args.port)
         port.start()
-        data = port.send_and_wait_prompt("bt_info\r")
+        data = port.send_and_wait_prompt("bt_info")
         if data == BTstring:
             print(data)
         else: print('error\r')
@@ -123,9 +132,23 @@ class Main:
     def IntFree(self):
         port = FlipperSerial(self.args.port)
         port.start()
-        data = port.send_and_wait_prompt("storage info /int\r")
+        data = port.send_and_wait_prompt("storage info /int")
         print(data)
         port.stop()
+
+    def IntFree(self):
+        port = FlipperSerial(self.args.port)
+        port.start()
+        data = port.send_and_wait_prompt("storage info /int")
+        print(data)
+        port.stop()
+
+    def UsbTest(self):
+        while(os.system(f'ls {self.args.port}')==0):          
+          subprocess.Popen(['python3', 'reboot.py', self.args.port, 'dfu'])        
+          time.sleep(1.5)
+          self.ExitDFU()
+          time.sleep(1.5)
 
 
 if __name__ == "__main__":
