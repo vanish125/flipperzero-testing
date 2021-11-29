@@ -124,7 +124,6 @@ class Main:
         port = FlipperSerial(self.args.port)
         port.start()
         data = port.send_and_wait_prompt("storage info /int\r")
-        data= data[len('Label: Barsik  Type:  LittleFS '):]
         print(data)
         port.stop()
 

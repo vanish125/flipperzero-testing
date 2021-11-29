@@ -64,7 +64,7 @@ class FlipperSerial:
         self.port.open()
         self.port.reset_input_buffer()
         # Send a command with a known syntax to make sure the buffer is flushed
-        self.send("device_info\r")
+        self.send("device_info")
         self.read.until("hardware_model")
         # And read buffer until we get prompt
         self.read.until(self.CLI_PROMPT)
@@ -73,7 +73,8 @@ class FlipperSerial:
         self.port.close()
 
     def send(self, line):
-        self.port.write(line.encode("ascii"))
+        self.port.write(line.encode("ascii") + "\r".encode("ascii"))
+        time.sleep(0.1)
 
     def send_and_wait_eol(self, line):
         self.send(line)
@@ -100,80 +101,66 @@ class FlipperSerial:
 
     def main(self):
         for i in range(10): 
-            self.send("input_send back press\r")
-            self.send("input_send back short\r")
-            self.send("input_send back release\r")
-            time.sleep(0.15)
-        time.sleep(0.15)
+            self.send("input_send back press")
+            self.send("input_send back short")
+            self.send("input_send back release")
 
     def up(self):
-        self.send("input_send up press\r")
-        self.send("input_send up short\r")
-        self.send("input_send up release\r")
-        time.sleep(0.15)
+        self.send("input_send up press")
+        self.send("input_send up short")
+        self.send("input_send up release")
     
     def down(self):
-        self.send("input_send down press\r")
-        self.send("input_send down short\r")
-        self.send("input_send down release\r")
-        time.sleep(0.15)
+        self.send("input_send down press")
+        self.send("input_send down short")
+        self.send("input_send down release")
 
     def left(self):
-        self.send("input_send left press\r")
-        self.send("input_send left short\r")
-        self.send("input_send left release\r")
-        time.sleep(0.15)
+        self.send("input_send left press")
+        self.send("input_send left short")
+        self.send("input_send left release")
 
     def right(self):
-        self.send("input_send right press\r")
-        self.send("input_send right short\r")
-        self.send("input_send right release\r")
-        time.sleep(0.15)
+        self.send("input_send right press")
+        self.send("input_send right short")
+        self.send("input_send right release")
 
     def ok(self):
-        self.send("input_send ok press\r")
-        self.send("input_send ok short\r")
-        self.send("input_send ok release\r")
-        time.sleep(0.15)
+        self.send("input_send ok press")
+        self.send("input_send ok short")
+        self.send("input_send ok release")
 
     def back(self):
-        self.send("input_send back press\r")
-        self.send("input_send back short\r")
-        self.send("input_send back release\r")
-        time.sleep(0.15)
+        self.send("input_send back press")
+        self.send("input_send back short")
+        self.send("input_send back release")
 
     def lup(self):
-        self.send("input_send up press\r")
-        self.send("input_send up long\r")
-        self.send("input_send up release\r")
-        time.sleep(0.15)
+        self.send("input_send up press")
+        self.send("input_send up long")
+        self.send("input_send up release")
     
     def ldown(self):
-        self.send("input_send down press\r")
-        self.send("input_send down long\r")
-        self.send("input_send down release\r")
-        time.sleep(0.15)
+        self.send("input_send down press")
+        self.send("input_send down long")
+        self.send("input_send down release")
 
     def lleft(self):
-        self.send("input_send left press\r")
-        self.send("input_send left long\r")
-        self.send("input_send left release\r")
-        time.sleep(0.15)
+        self.send("input_send left press")
+        self.send("input_send left long")
+        self.send("input_send left release")
 
     def lright(self):
-        self.send("input_send right press\r")
-        self.send("input_send right long\r")
-        self.send("input_send right release\r")
-        time.sleep(0.15)
+        self.send("input_send right press")
+        self.send("input_send right long")
+        self.send("input_send right release")
 
     def lk(self):
-        self.send("input_send ok press\r")
-        self.send("input_send ok long\r")
-        self.send("input_send ok release\r")
-        time.sleep(0.15)
+        self.send("input_send ok press")
+        self.send("input_send ok long")
+        self.send("input_send ok release")
 
     def lback(self):
-        self.send("input_send back press\r")
-        self.send("input_send back long\r")
-        self.send("input_send back release\r")
-        time.sleep(0.15)
+        self.send("input_send back press")
+        self.send("input_send back long")
+        self.send("input_send back release")
