@@ -8,8 +8,10 @@ import os
 import sys
 import subprocess
 import time
+from datetime import datetime
 
 BTstring = 'Ret: 0, HCI_Version: 11, HCI_Revision: 87, LMP_PAL_Version: 11, Manufacturer_Name: 48, LMP_PAL_Subversion: 8535\r\n'
+
 
 class Main:
     def __init__(self):
@@ -45,9 +47,6 @@ class Main:
         self.parser_UsbTest = self.subparsers.add_parser("UsbTest", help="UsbTest")
         self.parser_UsbTest.set_defaults(func=self.UsbTest)
 
-
-
-
     def __call__(self):
         self.args = self.parser.parse_args()
         if "func" not in self.args:
@@ -75,7 +74,8 @@ class Main:
         time.sleep(0.5)
 
     def CheckOB(self):
-        subprocess.Popen(['python3', '../flipperzero-firmware/scripts/ob.py', 'check'])
+        subprocess.Popen(
+            ['python3', '../flipperzero-firmware/scripts/ob.py', 'check'])
         time.sleep(0.5)
 
     def ExitDFU(self):
@@ -126,7 +126,8 @@ class Main:
         data = port.send_and_wait_prompt("bt_info")
         if data == BTstring:
             print(data)
-        else: print('error\r')
+        else:
+            print('error\r')
         port.stop()
 
     def IntFree(self):
@@ -144,11 +145,22 @@ class Main:
         port.stop()
 
     def UsbTest(self):
-        while(os.system(f'ls {self.args.port}')==0):          
-          subprocess.Popen(['python3', 'reboot.py', self.args.port, 'dfu'])        
-          time.sleep(1.5)
-          self.ExitDFU()
-          time.sleep(2)
+        ATTEMPT = 0
+        START_DATE = str(datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
+        print("Run at: " + START_DATE)
+        while(1):
+            if (os.system(f'ls {self.args.port}')==0):
+              print("                                                              ",end="\r", flush=True)
+              print("Port opened!", end="\r", flush=True)
+              subprocess.Popen(['python3', 'reboot.py', self.args.port, 'dfu'])
+              time.sleep(1.5)
+              self.ExitDFU()
+              time.sleep(2)
+              ATTEMPT = 0
+            else:
+              ATTEMPT += 1
+              print("Port no found for " + str(ATTEMPT) + " sec.",end="\r", flush=True)
+            time.sleep(1)
 
 
 if __name__ == "__main__":
