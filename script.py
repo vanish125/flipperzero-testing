@@ -10,7 +10,7 @@ import subprocess
 import time
 from datetime import datetime
 
-BTstring = 'Ret: 0, HCI_Version: 11, HCI_Revision: 87, LMP_PAL_Version: 11, Manufacturer_Name: 48, LMP_PAL_Subversion: 8535\r\n'
+BTstring = 'Ret: 0, HCI_Version: 11, HCI_Revision: 87, LMP_PAL_Version: 11, Manufacturer_Name: 48, LMP_PAL_Subversion: 8535\n\r'
 
 
 class Main:
@@ -46,6 +46,8 @@ class Main:
         self.parser_ExitDFU.set_defaults(func=self.ExitDFU)
         self.parser_UsbTest = self.subparsers.add_parser("UsbTest", help="UsbTest")
         self.parser_UsbTest.set_defaults(func=self.UsbTest)
+        self.parser_Test = self.subparsers.add_parser("Test", help="TestFW")
+        self.parser_Test.set_defaults(func=self.Test)
 
     def __call__(self):
         self.args = self.parser.parse_args()
@@ -127,6 +129,7 @@ class Main:
         if data == BTstring:
             print(data)
         else:
+            print(data)
             print('error\r')
         port.stop()
 
@@ -137,12 +140,20 @@ class Main:
         print(data)
         port.stop()
 
-    def IntFree(self):
+    def ExtFree(self):
         port = FlipperSerial(self.args.port)
         port.start()
-        data = port.send_and_wait_prompt("storage info /int")
+        data = port.send_and_wait_prompt("storage info /ext")
         print(data)
         port.stop()
+
+    def Test(self):
+        port = FlipperSerial(self.args.port)
+        port.start()
+        while(1):
+            tests.allapps(port)
+        port.stop()
+
 
     def UsbTest(self):
         ATTEMPT = 0

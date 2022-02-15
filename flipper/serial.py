@@ -100,7 +100,7 @@ class FlipperSerial:
         return error_text.strip()
 
     def main(self):
-        for i in range(10): 
+        for i in range(7): 
             self.send("input_send back press")
             self.send("input_send back short")
             self.send("input_send back release")
