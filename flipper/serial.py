@@ -105,6 +105,10 @@ class FlipperSerial:
             self.send("input_send back short")
             self.send("input_send back release")
 
+    def RPS_stop(self):
+        self.port.write('\x03\x9a\x01\x00')
+        time.sleep(0.1)
+
     def up(self):
         self.send("input_send up press")
         self.send("input_send up short")

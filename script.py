@@ -48,6 +48,8 @@ class Main:
         self.parser_UsbTest.set_defaults(func=self.UsbTest)
         self.parser_Test = self.subparsers.add_parser("Test", help="TestFW")
         self.parser_Test.set_defaults(func=self.Test)
+        self.parser_RPSTest = self.subparsers.add_parser("RPSTest", help="RPSTest")
+        self.parser_RPSTest.set_defaults(func=self.RPSTest)
 
     def __call__(self):
         self.args = self.parser.parse_args()
@@ -153,6 +155,28 @@ class Main:
         while(1):
             tests.allapps(port)
         port.stop()
+
+    def RPSTest(self):
+        ATTEMPT = 0
+        port = FlipperSerial(self.args.port)
+        data = data_o = "start_rpc_session"
+        while(1):
+            if (data == data_o):
+              print("                                                              ",end="\r", flush=True)
+              print("Port opened!", end="\r", flush=True)
+              port.start()
+              data = port.send_and_wait_eol("start_rpc_session")
+              print(data)
+              time.sleep(2)
+              port.RPS_stop
+              print('Session terminated\r')
+              port.stop()  
+              time.sleep(2)
+            else:
+              ATTEMPT += 1
+              print("Port no found for " + str(ATTEMPT) + " sec.",end="\r", flush=True)
+            time.sleep(1)
+        port.stop()    
 
 
     def UsbTest(self):
