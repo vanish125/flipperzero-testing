@@ -1,9 +1,9 @@
 import os
-import serial
 import time
 import hashlib
 import math
-
+import asyncio
+import serial_asyncio 
 
 def timing(func):
     """
@@ -86,7 +86,6 @@ class FlipperSerial:
         data = data[len(line)+1:]
         return data
 
-
     def has_error(self, data):
         """Is data has error"""
         if data.find(b"Storage error") != -1:
@@ -168,3 +167,4 @@ class FlipperSerial:
         self.send("input_send back press")
         self.send("input_send back long")
         self.send("input_send back release")
+
