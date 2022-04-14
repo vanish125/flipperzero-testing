@@ -2,9 +2,7 @@ import os
 import time
 import hashlib
 import math
-import asyncio
-import serial_asyncio 
-
+import serial
 def timing(func):
     """
     Speedometer decorator
@@ -49,6 +47,7 @@ class BufferedRead:
 
 
 class FlipperSerial:
+    CLI_CTRL = "Press Ctrl+C to abort"
     CLI_PROMPT = ">: "
     CLI_EOL = "\r\n"
 
@@ -73,6 +72,8 @@ class FlipperSerial:
         self.port.close()
 
     def send(self, line):
+        self.port.flushOutput()
+        self.port.flushInput()
         self.port.write(line.encode("ascii") + "\r".encode("ascii"))
         time.sleep(0.1)
 
@@ -83,6 +84,12 @@ class FlipperSerial:
     def send_and_wait_prompt(self, line):
         self.send(line)
         data = self.read.until(self.CLI_PROMPT).decode("ascii")
+        data = data[len(line)+1:]
+        return data
+
+    def send_and_wait_ctrl(self, line):
+        self.send(line)
+        data = self.read.until(self.CLI_CTRL).decode("ascii")
         data = data[len(line)+1:]
         return data
 
@@ -100,71 +107,75 @@ class FlipperSerial:
 
     def main(self):
         for i in range(7): 
-            self.send("input_send back press")
-            self.send("input_send back short")
-            self.send("input_send back release")
+            self.send("input send back press")
+            self.send("input send back short")
+            self.send("input send back release")
+
+    def CTRLc(self):
+        self.port.write(b'\x03')
+        time.sleep(0.1)
 
     def RPS_stop(self):
         self.port.write('\x03\x9a\x01\x00')
         time.sleep(0.1)
 
     def up(self):
-        self.send("input_send up press")
-        self.send("input_send up short")
-        self.send("input_send up release")
+        self.send("input send up press")
+        self.send("input send up short")
+        self.send("input send up release")
     
     def down(self):
-        self.send("input_send down press")
-        self.send("input_send down short")
-        self.send("input_send down release")
+        self.send("input send down press")
+        self.send("input send down short")
+        self.send("input send down release")
 
     def left(self):
-        self.send("input_send left press")
-        self.send("input_send left short")
-        self.send("input_send left release")
+        self.send("input send left press")
+        self.send("input send left short")
+        self.send("input send left release")
 
     def right(self):
-        self.send("input_send right press")
-        self.send("input_send right short")
-        self.send("input_send right release")
+        self.send("input send right press")
+        self.send("input send right short")
+        self.send("input send right release")
 
     def ok(self):
-        self.send("input_send ok press")
-        self.send("input_send ok short")
-        self.send("input_send ok release")
+        self.send("input send ok press")
+        self.send("input send ok short")
+        self.send("input send ok release")
 
     def back(self):
-        self.send("input_send back press")
-        self.send("input_send back short")
-        self.send("input_send back release")
+        self.send("input send back press")
+        self.send("input send back short")
+        self.send("input send back release")
 
     def lup(self):
-        self.send("input_send up press")
-        self.send("input_send up long")
-        self.send("input_send up release")
+        self.send("input send up press")
+        self.send("input send up long")
+        self.send("input send up release")
     
     def ldown(self):
-        self.send("input_send down press")
-        self.send("input_send down long")
-        self.send("input_send down release")
+        self.send("input send down press")
+        self.send("input send down long")
+        self.send("input send down release")
 
     def lleft(self):
-        self.send("input_send left press")
-        self.send("input_send left long")
-        self.send("input_send left release")
+        self.send("input send left press")
+        self.send("input send left long")
+        self.send("input send left release")
 
     def lright(self):
-        self.send("input_send right press")
-        self.send("input_send right long")
-        self.send("input_send right release")
+        self.send("input send right press")
+        self.send("input send right long")
+        self.send("input send right release")
 
     def lk(self):
-        self.send("input_send ok press")
-        self.send("input_send ok long")
-        self.send("input_send ok release")
+        self.send("input send ok press")
+        self.send("input send ok long")
+        self.send("input send ok release")
 
     def lback(self):
-        self.send("input_send back press")
-        self.send("input_send back long")
-        self.send("input_send back release")
+        self.send("input send back press")
+        self.send("input send back long")
+        self.send("input send back release")
 

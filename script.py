@@ -21,6 +21,7 @@ class Main:
         self.parser = argparse.ArgumentParser()
         self.parser.add_argument("-d", "--debug", action="store_true", help="Debug")
         self.parser.add_argument("-p", "--port", help="CDC Port", required=True)
+        self.parser.add_argument("-pr", "--portref", help="CDC Port Ref")
         self.subparsers = self.parser.add_subparsers(help="sub-command help")
 
         self.parser_cli = self.subparsers.add_parser("cli", help="Screen in cli")
@@ -50,6 +51,10 @@ class Main:
         self.parser_Test.set_defaults(func=self.Test)
         self.parser_RPSTest = self.subparsers.add_parser("RPSTest", help="RPSTest")
         self.parser_RPSTest.set_defaults(func=self.RPSTest)
+        self.parser_NfcTest = self.subparsers.add_parser("NfcTest", help="NfcTest")
+        self.parser_NfcTest.set_defaults(func=self.NfcTest)
+        self.parser_RfidTest = self.subparsers.add_parser("RfidTest", help="RfidTest")
+        self.parser_RfidTest.set_defaults(func=self.RfidTest)
 
     def __call__(self):
         self.args = self.parser.parse_args()
@@ -120,14 +125,14 @@ class Main:
     def PowerInfo(self):
         port = FlipperSerial(self.args.port)
         port.start()
-        data = port.send_and_wait_prompt("power_info")
+        data = port.send_and_wait_prompt("power info")
         print(data)
         port.stop()
 
     def BTcheck(self):
         port = FlipperSerial(self.args.port)
         port.start()
-        data = port.send_and_wait_prompt("bt_info")
+        data = port.send_and_wait_prompt("bt hci_info")
         if data == BTstring:
             print(data)
         else:
@@ -152,8 +157,12 @@ class Main:
     def Test(self):
         port = FlipperSerial(self.args.port)
         port.start()
-        while(1):
-            tests.allapps(port)
+        print('Press "Ctrl + c" to stop testing')
+        try:
+            while True:
+                tests.allapps(port)
+        except KeyboardInterrupt:
+            pass
         port.stop()
 
     def RPSTest(self):
@@ -197,6 +206,41 @@ class Main:
               print("Port no found for " + str(ATTEMPT) + " sec.",end="\r", flush=True)
             time.sleep(1)
 
+    def NfcTest(self):
+        port = FlipperSerial(self.args.port)
+        portr = FlipperSerial(self.args.portref)
+        portr.start()
+        port.start()
+        datar = portr.send_and_wait_ctrl("nfc emulate")
+        time.sleep(1.5)
+        data = port.send_and_wait_prompt("nfc detect")
+        portr.CTRLc()
+        print(data)
+        portr.stop()
+        port.stop()
+
+    def RfidTest(self):
+        port = FlipperSerial(self.args.port)
+        portr = FlipperSerial(self.args.portref)
+        portr.start()
+        port.start()
+        datar = portr.send_and_wait_ctrl("rfid emulate H10301 F4DBAC")
+        time.sleep(1)
+        data = port.send_and_wait_prompt("rfid read")
+        portr.CTRLc()
+        print(data)
+        datar = portr.send_and_wait_ctrl("rfid emulate EM4100 DC69660F12")
+        time.sleep(1)
+        data = port.send_and_wait_prompt("rfid read")
+        portr.CTRLc()
+        print(data)
+        datar = portr.send_and_wait_ctrl("rfid emulate I40134 B82191")
+        time.sleep(1)
+        data = port.send_and_wait_prompt("rfid read")
+        portr.CTRLc()
+        print(data)
+        portr.stop()
+        port.stop()
 
 if __name__ == "__main__":
     Main()()
