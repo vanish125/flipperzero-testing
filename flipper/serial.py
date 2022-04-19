@@ -3,6 +3,8 @@ import time
 import hashlib
 import math
 import serial
+
+
 def timing(func):
     """
     Speedometer decorator
@@ -49,7 +51,7 @@ class BufferedRead:
 class FlipperSerial:
     CLI_CTRL = "Press Ctrl+C to abort"
     CLI_PROMPT = ">: "
-    CLI_EOL = "\r\n"
+    CLI_EOL = '\r\n'
 
     def __init__(self, portname: str):
         self.port = serial.Serial()
@@ -90,7 +92,6 @@ class FlipperSerial:
     def send_and_wait_ctrl(self, line):
         self.send(line)
         data = self.read.until(self.CLI_CTRL).decode("ascii")
-        data = data[len(line)+1:]
         return data
 
     def has_error(self, data):
@@ -116,7 +117,7 @@ class FlipperSerial:
         time.sleep(0.1)
 
     def RPS_stop(self):
-        self.port.write('\x03\x9a\x01\x00')
+        self.port.write(b'\x03\x9a\x01\x00')
         time.sleep(0.1)
 
     def up(self):
@@ -178,4 +179,5 @@ class FlipperSerial:
         self.send("input send back press")
         self.send("input send back long")
         self.send("input send back release")
+
 

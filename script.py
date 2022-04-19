@@ -55,6 +55,10 @@ class Main:
         self.parser_NfcTest.set_defaults(func=self.NfcTest)
         self.parser_RfidTest = self.subparsers.add_parser("RfidTest", help="RfidTest")
         self.parser_RfidTest.set_defaults(func=self.RfidTest)
+        self.parser_iKeyTest = self.subparsers.add_parser("iKeyTest", help="iKeyTest")
+        self.parser_iKeyTest.set_defaults(func=self.iKeyTest)
+        self.parser_IrTest = self.subparsers.add_parser("IrTest", help="IrTest")
+        self.parser_IrTest.set_defaults(func=self.IrTest)
 
     def __call__(self):
         self.args = self.parser.parse_args()
@@ -69,7 +73,9 @@ class Main:
         self.handler.setFormatter(self.formatter)
         self.logger.addHandler(self.handler)
         # execute requested function
+        print("All work done!")
         self.args.func()
+        
 
     def cli(self):
         subprocess.Popen(['python3', 'screen_stream.py', self.args.port])
@@ -176,15 +182,15 @@ class Main:
               port.start()
               data = port.send_and_wait_eol("start_rpc_session")
               print(data)
-              time.sleep(2)
-              port.RPS_stop
+              time.sleep(1)
+              port.RPS_stop()
               print('Session terminated\r')
               port.stop()  
-              time.sleep(2)
+              time.sleep(1)
             else:
               ATTEMPT += 1
               print("Port no found for " + str(ATTEMPT) + " sec.",end="\r", flush=True)
-            time.sleep(1)
+            #time.sleep(1)
         port.stop()    
 
 
@@ -240,6 +246,58 @@ class Main:
         portr.CTRLc()
         print(data)
         portr.stop()
+        port.stop()
+
+    def iKeyTest(self):
+        port = FlipperSerial(self.args.port)
+        portr = FlipperSerial(self.args.portref)
+        portr.start()
+        port.start()
+        datar = portr.send_and_wait_ctrl("ikey emulate Dallas 01F637C0010000BA")
+        time.sleep(1)
+        data = port.send_and_wait_prompt("ikey read")
+        portr.CTRLc()
+        print(data)
+        datar = portr.send_and_wait_ctrl("ikey emulate Cyfral CEA3")
+        time.sleep(1)
+        data = port.send_and_wait_prompt("ikey read")
+        portr.CTRLc()
+        print(data)
+        datar = portr.send_and_wait_ctrl("ikey emulate Metakom 8EC04BB2")
+        time.sleep(1)
+        data = port.send_and_wait_prompt("ikey read")
+        portr.CTRLc()
+        print(data)
+        portr.stop()
+        port.stop()
+
+    def IrTest(self):
+        port = FlipperSerial(self.args.port)
+        portr = FlipperSerial(self.args.portref)
+        portr.start()
+        port.start()
+        data = port.send_and_wait_prompt("ir rx")
+        time.sleep(1)
+        datar = portr.send_and_wait_prompt("ir tx Samsung32 0x0E 0x0C")
+        time.sleep(1)
+        datar = portr.send_and_wait_prompt("ir tx RC5 0x00 0x2E")
+        time.sleep(1)
+        datar = portr.send_and_wait_prompt("ir tx NEC 0x04 0xD1")
+        port.CTRLc()
+        print(data)
+        portr.stop()
+        port.stop()
+
+    def ExtFree(self):
+        port = FlipperSerial(self.args.port)
+        port.start()
+        data = port.send_and_wait_eol("crypto decrypt 1 cdf1298be4de2ad417fd24ae38537f7b")
+        time.sleep(0.1)
+        data = port.send_and_wait_eol("ebc4c98c04abe19eee1c2885cd7a2d22881a1d2235facc71598b39f7f7b31d69")
+        time.sleep(0.1)
+        port.CTRLc()
+        time.sleep(0.1)
+        print(data)
         port.stop()
 
 if __name__ == "__main__":
