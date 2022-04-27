@@ -46,7 +46,7 @@ class BufferedRead:
             i = max(1, self.stream.in_waiting)
             data = self.stream.read(i)
             self.buffer.extend(data)
-
+    
 
 class FlipperSerial:
     CLI_CTRL = "Press Ctrl+C to abort"
@@ -93,6 +93,9 @@ class FlipperSerial:
         self.send(line)
         data = self.read.until(self.CLI_CTRL).decode("ascii")
         return data
+
+    def read_until_promp(self):
+        return self.read.until(self.CLI_PROMPT).decode("ascii")
 
     def has_error(self, data):
         """Is data has error"""

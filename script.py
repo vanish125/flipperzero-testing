@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+from numpy import void
 from flipper.serial import FlipperSerial
 from flipper.tests import tests
 import logging
@@ -24,8 +25,6 @@ class Main:
         self.parser.add_argument("-pr", "--portref", help="CDC Port Ref")
         self.subparsers = self.parser.add_subparsers(help="sub-command help")
 
-        self.parser_cli = self.subparsers.add_parser("cli", help="Screen in cli")
-        self.parser_cli.set_defaults(func=self.cli)
         self.parser_image = self.subparsers.add_parser("image", help="Make image screenshot")
         self.parser_image.add_argument("name", help="Name file")
         self.parser_image.set_defaults(func=self.image)
@@ -59,6 +58,8 @@ class Main:
         self.parser_iKeyTest.set_defaults(func=self.iKeyTest)
         self.parser_IrTest = self.subparsers.add_parser("IrTest", help="IrTest")
         self.parser_IrTest.set_defaults(func=self.IrTest)
+        self.parser_CryptoCheck = self.subparsers.add_parser("CryptoCheck", help="CryptoCheck")
+        self.parser_CryptoCheck.set_defaults(func=self.CryptoCheck)
 
     def __call__(self):
         self.args = self.parser.parse_args()
@@ -73,13 +74,9 @@ class Main:
         self.handler.setFormatter(self.formatter)
         self.logger.addHandler(self.handler)
         # execute requested function
-        print("All work done!")
+        print("Start testing")
         self.args.func()
         
-
-    def cli(self):
-        subprocess.Popen(['python3', 'screen_stream.py', self.args.port])
-        time.sleep(0.5)
 
     def image(self):
         self.imageFile(self.args.name)
@@ -276,27 +273,31 @@ class Main:
         portr = FlipperSerial(self.args.portref)
         portr.start()
         port.start()
-        data = port.send_and_wait_prompt("ir rx")
+        void = port.send("ir rx")
         time.sleep(1)
         datar = portr.send_and_wait_prompt("ir tx Samsung32 0x0E 0x0C")
         time.sleep(1)
-        datar = portr.send_and_wait_prompt("ir tx RC5 0x00 0x2E")
+        datar = portr.send_and_wait_prompt("ir tx RC5 0x04 0x2E")
         time.sleep(1)
         datar = portr.send_and_wait_prompt("ir tx NEC 0x04 0xD1")
+        time.sleep(1)
         port.CTRLc()
+        time.sleep(0.1)
+        data = port.read_until_promp()
         print(data)
         portr.stop()
         port.stop()
 
-    def ExtFree(self):
+    def CryptoCheck(self):
         port = FlipperSerial(self.args.port)
         port.start()
-        data = port.send_and_wait_eol("crypto decrypt 1 cdf1298be4de2ad417fd24ae38537f7b")
-        time.sleep(0.1)
-        data = port.send_and_wait_eol("ebc4c98c04abe19eee1c2885cd7a2d22881a1d2235facc71598b39f7f7b31d69")
-        time.sleep(0.1)
+        void = port.send_and_wait_eol("crypto decrypt 1 cdf1298be4de2ad417fd24ae38537f7b")
+        time.sleep(1)
+        void = port.send_and_wait_eol("ebc4c98c04abe19eee1c2885cd7a2d22881a1d2235facc71598b39f7f7b31d69")
+        time.sleep(1)
         port.CTRLc()
         time.sleep(0.1)
+        data = port.read_until_promp()
         print(data)
         port.stop()
 
