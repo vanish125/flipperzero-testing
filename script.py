@@ -22,7 +22,7 @@ class Main:
         self.parser = argparse.ArgumentParser()
         self.parser.add_argument("-d", "--debug", action="store_true", help="Debug")
         self.parser.add_argument("-p", "--port", help="CDC Port", required=True)
-        self.parser.add_argument("-pr", "--portref", help="CDC Port Ref")
+        self.parser.add_argument("-r", "--portref", help="CDC Port Ref")
         self.subparsers = self.parser.add_subparsers(help="sub-command help")
 
         self.parser_image = self.subparsers.add_parser("image", help="Make image screenshot")
