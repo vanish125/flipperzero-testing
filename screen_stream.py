@@ -3,6 +3,7 @@
 # sed -i ./flipper_proto_compiled/*_pb2.py -e 's/^import [^ ]*_pb2/from . \0/'
 # -*- coding: utf-8 -*-
 
+from socket import timeout
 import sys
 from turtle import screensize
 import serial
@@ -30,6 +31,7 @@ def system_ping_cmd(id=0, data=bytes([0xde, 0xad, 0xba, 0xba, 0xca, 0xca])):
     # print(bytearray(_VarintBytes(flipper_message.ByteSize()) + flipper_message.SerializeToString()))
     return bytearray(_VarintBytes(flipper_message.ByteSize()) + flipper_message.SerializeToString())
 
+
 def system_alert_cmd(id=0):
     flipper_message = flipper_pb2.Main()
     flipper_message.command_id = id
@@ -38,6 +40,7 @@ def system_alert_cmd(id=0):
     alert = system_pb2.PlayAudiovisualAlertRequest()
     flipper_message.system_play_audiovisual_alert_request.CopyFrom(alert)
     return bytearray(_VarintBytes(flipper_message.ByteSize()) + flipper_message.SerializeToString())
+
 
 def gui_stream_cmd(id=0):
     flipper_message = flipper_pb2.Main()
@@ -48,32 +51,49 @@ def gui_stream_cmd(id=0):
     flipper_message.gui_start_screen_stream_request.CopyFrom(stream)
     return bytearray(_VarintBytes(flipper_message.ByteSize()) + flipper_message.SerializeToString())
 
-def srceen_frame(data):
-    read = _DecodeVarint32(data)
-    read.ParseFromString(data)
-
-    return read
 
 def main():
-    flipper = serial.Serial(sys.argv[1])
+    flipper = serial.Serial(sys.argv[1], timeout=1)
     flipper.baudrate = 230400
-    flipper.timeout = 2
+    # flipper.timeout = 1
     flipper.flushOutput()
     flipper.flushInput()
     flipper.write(b"\nstart_rpc_session\r")  # once
 
+    # Read garbage
+    flipper.read(size=1000)
+
+    buffer = bytearray()
     i = 0
     try:
         # while True:
-            flipper.write(system_ping_cmd(i))
-            i += 1
-            #flipper.write(system_alert_cmd(i))
-            flipper.flushOutput()
-            flipper.flushInput()
-            flipper.write(gui_stream_cmd(i))
-            time.sleep(0.1)
-            rx = flipper.read
-            print(f'Rx: {rx}')
+        # flipper.write(system_ping_cmd(i))
+        i = 1
+        # flipper.write(system_alert_cmd(i))
+        flipper.flushOutput()
+        flipper.flushInput()
+        flipper.write(gui_stream_cmd(i))
+        while True:
+            if flipper.inWaiting():
+                buffer += (flipper.read(flipper.inWaiting()))
+            if len(buffer):
+                print(buffer)
+                n = 0
+                while n < len(buffer):
+                    msg_len, new_pos = _DecodeVarint32(buffer, n)
+                    print(msg_len, new_pos)
+                    n = new_pos
+                    msg_buf = buffer[n:msg_len]
+                    n = msg_len
+                    # message = flipper_pb2.Main()
+                    # message.ParseFromString(msg_buf)
+                    # screen_frame = gui_pb2.ScreenFrame()
+                    # screen_frame.CopyFrom(message.gui_screen_frame)
+                    # print(screen_frame.data)
+            # time.sleep(0.1)
+
+        # rx = flipper.read(size=1030)
+        # print(f'Rx: {rx}')
     finally:
         flipper.close()
 

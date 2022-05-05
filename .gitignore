@@ -1,6 +1,8 @@
 *.png
 
-/flipper/__pycache__
+flipper/__pycache__
+
+flipper_proto_compiled/
 
 .vscode
 # Byte-compiled / optimized / DLL files
