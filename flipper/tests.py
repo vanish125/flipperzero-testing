@@ -6,12 +6,12 @@ class tests:
 
     def FW(self):
         self.main()
-        self.ldown()
+        self.key('LONG DOWN')
 
     def Boot(self):
         self.main()
-        self.ldown()
-        self.down()
+        self.key('LONG DOWN')
+        self.key('SHORT DOWN')
 
     def powermax(self):
         self.main()
@@ -23,7 +23,7 @@ class tests:
         self.send('vibro 1')
         self.send('loader open "Music Player"')
         for i in range(3): 
-            self.up()
+            self.key('SHORT UP')
 
     def powermin(self):
         self.main()
@@ -36,35 +36,35 @@ class tests:
 
     def PowerInfo(self):
         self.main()
-        self.ok()
-        self.up() 
-        self.ok()
+        self.key('SHORT OK')
+        self.key('SHORT UP')
+        self.key('SHORT OK')
         for i in range(3): 
-            self.down()
-        self.ok()
-        self.ok()
+            self.key('SHORT DOWN')
+        self.key('SHORT OK')
+        self.key('SHORT OK')
 
     def allapps(self):
         self.main()
         self.send('loader open "125 kHz RFID"')
         time.sleep(1)
-        self.back()
+        self.key('SHORT BACK')
         self.send('loader open "GPIO"')
         time.sleep(1)
-        self.back()
+        self.key('SHORT BACK')
         self.send('loader open "Infrared"')
         time.sleep(1)
-        self.back()
+        self.key('SHORT BACK')
         self.send('loader open "Music Player"')
         time.sleep(1)
-        self.back()
+        self.key('SHORT BACK')
         self.send('loader open "NFC"')
         time.sleep(1)
-        self.back()
+        self.key('SHORT BACK')
         self.send('loader open "Sub-GHz"')
         time.sleep(1)
-        self.back()
+        self.key('SHORT BACK')
         self.send('loader open "iButton"')
         time.sleep(1)
-        self.back()
+        self.key('SHORT BACK')
         time.sleep(1)

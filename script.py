@@ -2,6 +2,7 @@
 
 from numpy import void
 from flipper.serial import FlipperSerial
+from flipper.serial import ImageCompare
 from flipper.tests import tests
 import logging
 import argparse
@@ -48,8 +49,8 @@ class Main:
         self.parser_UsbTest.set_defaults(func=self.UsbTest)
         self.parser_Test = self.subparsers.add_parser("Test", help="TestFW")
         self.parser_Test.set_defaults(func=self.Test)
-        self.parser_RPSTest = self.subparsers.add_parser("RPSTest", help="RPSTest")
-        self.parser_RPSTest.set_defaults(func=self.RPSTest)
+        self.parser_RPCTest = self.subparsers.add_parser("RPCTest", help="RPCTest")
+        self.parser_RPCTest.set_defaults(func=self.RPCTest)
         self.parser_NfcTest = self.subparsers.add_parser("NfcTest", help="NfcTest")
         self.parser_NfcTest.set_defaults(func=self.NfcTest)
         self.parser_RfidTest = self.subparsers.add_parser("RfidTest", help="RfidTest")
@@ -82,7 +83,10 @@ class Main:
         self.imageFile(self.args.name)
 
     def imageFile(self, line):
-        subprocess.Popen(['python3', 'screen.py', self.args.port, line])
+        port = FlipperSerial(self.args.port)
+        port.start()
+        port.imageFile(line)
+        port.stop()
         time.sleep(0.5)
 
     def CheckOB(self):
@@ -168,7 +172,7 @@ class Main:
             pass
         port.stop()
 
-    def RPSTest(self):
+    def RPCTest(self):
         ATTEMPT = 0
         port = FlipperSerial(self.args.port)
         data = data_o = "start_rpc_session"
@@ -177,17 +181,17 @@ class Main:
               print("                                                              ",end="\r", flush=True)
               print("Port opened!", end="\r", flush=True)
               port.start()
-              data = port.send_and_wait_eol("start_rpc_session")
+              port.RPC_start
               print(data)
               time.sleep(1)
-              port.RPS_stop()
+              port.RPC_stop()
               print('Session terminated\r')
               port.stop()  
               time.sleep(1)
             else:
               ATTEMPT += 1
               print("Port no found for " + str(ATTEMPT) + " sec.",end="\r", flush=True)
-            #time.sleep(1)
+            time.sleep(1)
         port.stop()    
 
 
