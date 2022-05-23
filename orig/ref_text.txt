@@ -1,0 +1,10 @@
+#SubGhz
+
+#LFRFID
+
+#NFC
+
+#IR
+
+#IButton
+

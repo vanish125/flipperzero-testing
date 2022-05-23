@@ -4,6 +4,7 @@ from numpy import void
 from flipper.serial import FlipperSerial
 from flipper.serial import ImageCompare
 from flipper.tests import tests
+from orig.reference import Ref
 import logging
 import argparse
 import os
@@ -61,6 +62,8 @@ class Main:
         self.parser_IrTest.set_defaults(func=self.IrTest)
         self.parser_CryptoCheck = self.subparsers.add_parser("CryptoCheck", help="CryptoCheck")
         self.parser_CryptoCheck.set_defaults(func=self.CryptoCheck)
+        self.parser_SubGhzTest = self.subparsers.add_parser("SubGhzTest", help="SubGhzTest")
+        self.parser_SubGhzTest.set_defaults(func=self.SubGhzTest)
 
     def __call__(self):
         self.args = self.parser.parse_args()
@@ -181,7 +184,7 @@ class Main:
               print("                                                              ",end="\r", flush=True)
               print("Port opened!", end="\r", flush=True)
               port.start()
-              port.RPC_start
+              data = port.RPC_start()
               print(data)
               time.sleep(1)
               port.RPC_stop()
@@ -222,7 +225,12 @@ class Main:
         time.sleep(1.5)
         data = port.send_and_wait_prompt("nfc detect")
         portr.CTRLc()
-        print(data)
+        print("!" + data + "!")
+        print('-----\n')
+        print("!" + Ref.NFC + "!")
+        if data == Ref.NFC:
+            print('Ok')
+        else: print('Fail')
         portr.stop()
         port.stop()
 
@@ -295,14 +303,50 @@ class Main:
     def CryptoCheck(self):
         port = FlipperSerial(self.args.port)
         port.start()
-        void = port.send_and_wait_eol("crypto decrypt 1 cdf1298be4de2ad417fd24ae38537f7b")
+        port.send_and_wait_eol("crypto decrypt 1 cdf1298be4de2ad417fd24ae38537f7b")
         time.sleep(1)
-        void = port.send_and_wait_eol("ebc4c98c04abe19eee1c2885cd7a2d22881a1d2235facc71598b39f7f7b31d69")
+        port.send_and_wait_eol("ebc4c98c04abe19eee1c2885cd7a2d22881a1d2235facc71598b39f7f7b31d69")
         time.sleep(1)
         port.CTRLc()
         time.sleep(0.1)
         data = port.read_until_promp()
         print(data)
+        port.stop()
+
+
+    def SubGhzTest(self):
+        port = FlipperSerial(self.args.port)
+        portr = FlipperSerial(self.args.portref)
+        portr.start()
+        port.start()
+        port.send("subghz rx 433920000")
+        time.sleep(1)
+        portr.send_and_wait_prompt("subghz tx 74bada 433920000 10")
+        time.sleep(1)
+        port.CTRLc()
+        time.sleep(0.1)
+        data = port.read_until_promp()
+        time.sleep(0.1)
+        print(data)
+        port.send("subghz rx 315000000")
+        time.sleep(1)
+        portr.send_and_wait_prompt("subghz tx 74badb 315000000 10")
+        time.sleep(1)
+        port.CTRLc()
+        time.sleep(0.1)
+        data = port.read_until_promp()
+        time.sleep(0.1)
+        print(data)
+        port.send("subghz rx 868350000")
+        time.sleep(1)
+        portr.send_and_wait_prompt("subghz tx 74badc 868350000 10")
+        time.sleep(1)
+        port.CTRLc()
+        time.sleep(0.1)
+        data = port.read_until_promp()
+        time.sleep(0.1)
+        print(data)
+        portr.stop()
         port.stop()
 
 if __name__ == "__main__":
