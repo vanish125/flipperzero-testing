@@ -225,10 +225,8 @@ class Main:
         time.sleep(1.5)
         data = port.send_and_wait_prompt("nfc detect")
         portr.CTRLc()
-        print("!" + data + "!")
-        print('-----\n')
-        print("!" + Ref.NFC + "!")
-        if data == Ref.NFC:
+        #print(repr(data))
+        if data == Ref.Nfc:
             print('Ok')
         else: print('Fail')
         portr.stop()
@@ -243,17 +241,18 @@ class Main:
         time.sleep(1)
         data = port.send_and_wait_prompt("rfid read")
         portr.CTRLc()
-        print(data)
         datar = portr.send_and_wait_ctrl("rfid emulate EM4100 DC69660F12")
         time.sleep(1)
-        data = port.send_and_wait_prompt("rfid read")
+        data = port.send_and_wait_prompt("rfid read") + data
         portr.CTRLc()
-        print(data)
         datar = portr.send_and_wait_ctrl("rfid emulate I40134 B82191")
         time.sleep(1)
-        data = port.send_and_wait_prompt("rfid read")
+        data = port.send_and_wait_prompt("rfid read") + data
         portr.CTRLc()
-        print(data)
+        #print(repr(data))
+        if data == Ref.Lfrfid:
+            print('Ok')
+        else: print('Fail')
         portr.stop()
         port.stop()
 
@@ -266,17 +265,18 @@ class Main:
         time.sleep(1)
         data = port.send_and_wait_prompt("ikey read")
         portr.CTRLc()
-        print(data)
         datar = portr.send_and_wait_ctrl("ikey emulate Cyfral CEA3")
         time.sleep(1)
-        data = port.send_and_wait_prompt("ikey read")
+        data = port.send_and_wait_prompt("ikey read") + data
         portr.CTRLc()
-        print(data)
         datar = portr.send_and_wait_ctrl("ikey emulate Metakom 8EC04BB2")
         time.sleep(1)
-        data = port.send_and_wait_prompt("ikey read")
+        data = port.send_and_wait_prompt("ikey read") + data
         portr.CTRLc()
-        print(data)
+        #print(repr(data))
+        if data == Ref.iKey:
+            print('Ok')
+        else: print('Fail')
         portr.stop()
         port.stop()
 
@@ -296,7 +296,10 @@ class Main:
         port.CTRLc()
         time.sleep(0.1)
         data = port.read_until_promp()
-        print(data)
+        #print(repr(data))
+        if data == Ref.ir:
+            print('Ok')
+        else: print('Fail')
         portr.stop()
         port.stop()
 
@@ -327,25 +330,26 @@ class Main:
         time.sleep(0.1)
         data = port.read_until_promp()
         time.sleep(0.1)
-        print(data)
         port.send("subghz rx 315000000")
         time.sleep(1)
         portr.send_and_wait_prompt("subghz tx 74badb 315000000 10")
         time.sleep(1)
         port.CTRLc()
         time.sleep(0.1)
-        data = port.read_until_promp()
+        data = port.read_until_promp() + data
         time.sleep(0.1)
-        print(data)
         port.send("subghz rx 868350000")
         time.sleep(1)
         portr.send_and_wait_prompt("subghz tx 74badc 868350000 10")
         time.sleep(1)
         port.CTRLc()
         time.sleep(0.1)
-        data = port.read_until_promp()
+        data = port.read_until_promp() +data
         time.sleep(0.1)
-        print(data)
+        #print(repr(data))
+        if data == Ref.SubGhz:
+            print('Ok')
+        else: print('Fail')
         portr.stop()
         port.stop()
 
