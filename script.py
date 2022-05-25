@@ -64,6 +64,8 @@ class Main:
         self.parser_CryptoCheck.set_defaults(func=self.CryptoCheck)
         self.parser_SubGhzTest = self.subparsers.add_parser("SubGhzTest", help="SubGhzTest")
         self.parser_SubGhzTest.set_defaults(func=self.SubGhzTest)
+        self.parser_RfidGuiTest = self.subparsers.add_parser("RfidGuiTest", help="RfidGuiTest")
+        self.parser_RfidGuiTest.set_defaults(func=self.RfidGuiTest)
 
     def __call__(self):
         self.args = self.parser.parse_args()
@@ -351,6 +353,21 @@ class Main:
             print('Ok')
         else: print('Fail')
         portr.stop()
+        port.stop()
+
+    def RfidGuiTest(self):
+        port = FlipperSerial(self.args.port)
+        port.start()
+        tests.lfrfid_em_create(port)
+        port.imageFile('EmRFID1.png')
+        time.sleep(3)
+        tests.lfrfid_hid_create(port)
+        port.imageFile('EmRFID2.png')
+        port.main()
+        if ImageCompare.compare('EmRFID1.png') == None:
+            if ImageCompare.compare('EmRFID2.png') == None:
+                print('Ok')
+        else: print('Fail')
         port.stop()
 
 if __name__ == "__main__":

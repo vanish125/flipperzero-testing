@@ -56,16 +56,12 @@ class BufferedRead:
 
 
 class ImageCompare:
-    def compare(self, name):
+    def compare(name):
         image_path = "out"
         orig_path = "orig"
         image_one = Image.open(f'{image_path}/{name}').convert('RGB')
         image_two = Image.open(f'{orig_path}/{name}').convert('RGB')
-        diff = ImageChops.difference(image_one, image_two).getbbox()
-        if diff==None:
-            print("Ok")
-        else:
-            print("Error")
+        return ImageChops.difference(image_one, image_two).getbbox()
 
 
 class FlipperSerial:
@@ -160,11 +156,11 @@ class FlipperSerial:
             raise InputTypeException('Incorrect key')
 
         self.send('input send '+ key.lower()+ ' press')
-        print('input send '+ key.lower()+ ' press')
+        #print('input send '+ key.lower()+ ' press')
         self.send('input send '+ key.lower()+ ' '+ type.lower())
-        print('input send '+ key.lower()+ ' '+ type.lower())
+        #print('input send '+ key.lower()+ ' '+ type.lower())
         self.send('input send '+ key.lower()+ ' release')
-        print('input send '+ key.lower()+ ' release')
+        #print('input send '+ key.lower()+ ' release')
 
     def imageFile(self, name):
         image_path = "out"
