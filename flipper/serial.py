@@ -1,5 +1,5 @@
 import os
-import time
+from time import sleep
 import hashlib
 import math
 import numpy
@@ -10,26 +10,10 @@ from PIL import Image
 from PIL import ImageChops
 from flipperzero_protobuf_py.flipper_protobuf import ProtoFlipper
 
-def timing(func):
-    """
-    Speedometer decorator
-    """
-
-    def wrapper(*args, **kwargs):
-        time1 = time.monotonic()
-        ret = func(*args, **kwargs)
-        time2 = time.monotonic()
-        print(
-            "{:s} function took {:.3f} ms".format(
-                func.__name__, (time2 - time1) * 1000.0
-            )
-        )
-        return ret
-
-    return wrapper
 
 class InputTypeException(Exception):
     pass
+
 
 class BufferedRead:
     def __init__(self, stream):
@@ -46,7 +30,7 @@ class BufferedRead:
                     read = self.buffer[:i]
                 else:
                     read = self.buffer[: i + len(eol)]
-                self.buffer = self.buffer[i + len(eol) :]
+                self.buffer = self.buffer[i + len(eol):]
                 return read
 
             # read and append to buffer
@@ -62,6 +46,136 @@ class ImageCompare:
         image_one = Image.open(f'{image_path}/{name}').convert('RGB')
         image_two = Image.open(f'{orig_path}/{name}').convert('RGB')
         return ImageChops.difference(image_one, image_two).getbbox()
+
+
+class FlipperTextKeyboard:
+    def __init__(self, port, send_method) -> None:
+        self.port = port
+        self.keeb = []
+        self.keeb.append(list("qwertyuiop0123"))
+        self.keeb.append(list("asdfghjkl\0\b456"))
+        self.keeb.append(list("zxcvbnm_\0\0\n789"))
+        self.send_method = getattr(self.port, send_method)
+
+    def _coord(self, letter):
+        col_index = -1
+        row_index = -1
+        for row in self.keeb:
+            try:
+                row_index = row_index+1
+                col_index = row.index(letter)
+                break
+            except:
+                ValueError: None
+
+        if(col_index < 0):
+            return None
+        else:
+            return (col_index, row_index)
+
+    def send(self, text):
+        current_x, current_y = self._coord('\n')
+        text = text + '\n'
+        for letter in list(text):
+            if letter != '\b' and letter != '\n':
+                keeb_letter = str.lower(letter)
+            else:
+                keeb_letter = letter
+
+            new_x, new_y = self._coord(keeb_letter)
+            step_x, step_y = new_x - current_x, new_y - current_y
+
+            dir_left = step_x < 0
+            dir_up = step_y < 0
+
+            step_x, step_y = abs(step_x), abs(step_y)
+
+            for _ in range(step_y):
+                if dir_up:
+                    current_y -= 1
+                    self.send_method("SHORT UP")
+                    if self.keeb[current_y][current_x] == '\0':
+                        step_x += 1
+                else:
+                    current_y += 1
+                    self.send_method("SHORT DOWN")
+                    if self.keeb[current_y][current_x] == '\0':
+                        step_x -= 1
+
+            for _ in range(step_x):
+                if dir_left:
+                    current_x -= 1
+                    if self.keeb[current_y][current_x] != '\0':
+                        self.send_method("SHORT LEFT")
+                else:
+                    current_x += 1
+                    if self.keeb[current_y][current_x] != '\0':
+                        self.send_method("SHORT RIGHT")
+
+            if letter.isupper():
+                self.send_method("LONG OK")
+            else:
+                self.send_method("SHORT OK")
+
+
+class FlipperHEXKeyboard:
+    def __init__(self, port, send_method) -> None:
+        self.port = port
+        self.keeb = []
+        self.keeb.append(list("01234567\b"))
+        self.keeb.append(list("89abcdef\n"))
+        self.send_method = getattr(self.port, send_method)
+
+    def _coord(self, letter):
+        col_index = -1
+        row_index = -1
+        for row in self.keeb:
+            try:
+                row_index = row_index+1
+                col_index = row.index(letter)
+                break
+            except:
+                ValueError: None
+
+        if(col_index < 0):
+            return None
+        else:
+            return (col_index, row_index)
+
+    def send(self, text):
+        current_x, current_y = self._coord('0')
+        text = text + '\n'
+        for letter in list(text):
+            if letter != '\b' and letter != '\n':
+                keeb_letter = str.lower(letter)
+            else:
+                keeb_letter = letter
+
+            new_x, new_y = self._coord(keeb_letter)
+            step_x, step_y = new_x - current_x, new_y - current_y
+
+            dir_left = step_x < 0
+            dir_up = step_y < 0
+
+            step_x, step_y = abs(step_x), abs(step_y)
+
+            for _ in range(step_y):
+                if dir_up:
+                    current_y -= 1
+                    self.send_method("SHORT UP")
+                else:
+                    current_y += 1
+                    self.send_method("SHORT DOWN")
+
+            for _ in range(step_x):
+                if dir_left:
+                    current_x -= 1
+                    self.send_method("SHORT LEFT")
+                else:
+                    current_x += 1
+                    self.send_method("SHORT RIGHT")
+
+            self.send_method("SHORT OK")
 
 
 class FlipperSerial:
@@ -93,7 +207,7 @@ class FlipperSerial:
         self.port.flushOutput()
         self.port.flushInput()
         self.port.write(line.encode("ascii") + "\r".encode("ascii"))
-        time.sleep(0.1)
+        sleep(0.025)
 
     def send_and_wait_eol(self, line):
         self.send(line)
@@ -126,12 +240,13 @@ class FlipperSerial:
         return error_text.strip()
 
     def main(self):
-        for i in range(7): 
+        for i in range(7):
             self.key("SHORT BACK")
+            sleep(0.01)
 
     def CTRLc(self):
         self.port.write(b'\x03')
-        time.sleep(0.1)
+        sleep(0.1)
 
     def RPC_start(self):
         return self.send_and_wait_eol("start_rpc_session")
@@ -139,12 +254,12 @@ class FlipperSerial:
     def RPC_stop(self):
         proto = ProtoFlipper(self.port)
         proto.cmd_flipper_stop_session()
-        time.sleep(0.1)
+        sleep(0.1)
 
     def RPC_key(self, key):
         proto = ProtoFlipper(self.port)
         proto.cmd_gui_send_input(key)
-        time.sleep(0.1)
+        sleep(0.1)
 
     def key(self, key):
         type, key = key.split(" ")
@@ -155,11 +270,11 @@ class FlipperSerial:
         if key != 'UP' and key != 'DOWN' and key != 'LEFT' and key != 'RIGHT' and key != 'OK' and key != 'BACK':
             raise InputTypeException('Incorrect key')
 
-        self.send('input send '+ key.lower()+ ' press')
+        self.send('input send ' + key.lower() + ' press')
         #print('input send '+ key.lower()+ ' press')
-        self.send('input send '+ key.lower()+ ' '+ type.lower())
+        self.send('input send ' + key.lower() + ' ' + type.lower())
         #print('input send '+ key.lower()+ ' '+ type.lower())
-        self.send('input send '+ key.lower()+ ' release')
+        self.send('input send ' + key.lower() + ' release')
         #print('input send '+ key.lower()+ ' release')
 
     def imageFile(self, name):
@@ -169,23 +284,23 @@ class FlipperSerial:
         self.RPC_start()
         proto = ProtoFlipper(self.port)
         data = proto.cmd_gui_snapshot_screen()
-        get_bin = lambda x: format(x, 'b')
+        def get_bin(x): return format(x, 'b')
         scr = numpy.zeros((res_x+1, res_y+1))
         x = y = 0
         basey = 0
         for i in range(0, int(res_x*res_y/8)):
             tmp = get_bin(data[i])
             tmp = '0'*(8-len(tmp)) + tmp
-            tmp = tmp[::-1]     #reverse        
+            tmp = tmp[::-1]  # reverse
             y = basey
             x += 1
             for c in tmp:
                 scr[x][y] = c
-                y += 1   
+                y += 1
             if (i + 1) % res_x == 0:
                 basey += 8
                 x = 0
-        #export to image file:
+        # export to image file:
         scale = 3
         col_black = [0x11, 0x11, 0x11]
         col_white = [0xff, 0x8c, 0x29]
@@ -209,5 +324,5 @@ class FlipperSerial:
         im = Image.new('RGB', (res_x, res_y))
         im = Image.fromarray(img)
         im.save(f'{image_path}/{name}')
-        print('Saved to', name)
+        #print('Saved to', name)
         self.RPC_stop()

@@ -1,4 +1,4 @@
-*.png
+out/*
 
 flipper/__pycache__
 
