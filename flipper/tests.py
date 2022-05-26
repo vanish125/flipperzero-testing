@@ -1,4 +1,4 @@
-from .serial import FlipperSerial
+from flipper.serial import FlipperSerial
 import time
 
 
@@ -170,3 +170,4 @@ class tests:
         time.sleep(1.5)
         self.key('SHORT OK')
         self.key('SHORT OK')
+    
