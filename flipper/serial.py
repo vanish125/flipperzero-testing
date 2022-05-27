@@ -240,7 +240,11 @@ class FlipperSerial:
         return error_text.strip()
 
     def main(self):
-        for i in range(7):
+        for i in range(5):
+            self.key("SHORT BACK")
+            sleep(0.01)
+        self.key("SHORT LEFT")
+        for i in range(2):
             self.key("SHORT BACK")
             sleep(0.01)
 

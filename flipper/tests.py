@@ -134,3 +134,58 @@ class tests:
         sleep(0.1)
         self.key('SHORT OK')
         sleep(1)
+
+    def lfrfid_read_and_save(self):
+        keeb_text = FlipperTextKeyboard(self, "key")
+        self.main()
+        self.send('loader open "125 kHz RFID"')
+        sleep(2)
+        self.key('SHORT OK')
+        sleep(5)
+        self.key('SHORT RIGHT')
+        self.key('SHORT OK')
+        keeb_text.send("REm")
+        self.key('SHORT BACK')
+        sleep(0.1)
+        self.key('SHORT DOWN')
+        sleep(0.1)
+        self.key('SHORT OK')
+
+    def nfc_read_save_and_emu_mf(self):
+        keeb_text = FlipperTextKeyboard(self, "key")
+        self.main()
+        self.send('loader open "NFC"')
+        sleep(2)
+        self.key('SHORT OK')
+        sleep(2)
+        self.key('SHORT RIGHT')
+        for i in range(3):
+            self.key("SHORT DOWN")
+        self.key('SHORT OK')
+        keeb_text.send("Mf1K")
+        self.key('SHORT BACK')
+        for i in range(2):
+            self.key("SHORT DOWN")
+        for i in range(2):
+            self.key("SHORT OK")
+
+    def nfc_read_save_and_emu_ntag(self):
+        keeb_text = FlipperTextKeyboard(self, "key")
+        self.main()
+        self.send('loader open "NFC"')
+        sleep(2)
+        self.key('SHORT OK')
+        sleep(2)
+        self.key('SHORT RIGHT')
+        self.key('SHORT OK')
+        sleep(2)
+        self.key('SHORT RIGHT')
+        self.key('SHORT OK')
+        keeb_text.send("Ntag")
+        for i in range(2):
+            self.key("SHORT BACK")
+        for i in range(2):
+            self.key("SHORT DOWN")
+        for i in range(2):
+            self.key("SHORT OK")
+        
