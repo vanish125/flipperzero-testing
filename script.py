@@ -13,7 +13,7 @@ import argparse
 import os
 import sys
 import subprocess
-import time
+from time import sleep
 from datetime import datetime
 
 BTstring = 'Ret: 0, HCI_Version: 11, HCI_Revision: 87, LMP_PAL_Version: 11, Manufacturer_Name: 48, LMP_PAL_Subversion: 8535\n\r'
@@ -99,16 +99,16 @@ class Main:
         port.start()
         port.imageFile(line)
         port.stop()
-        time.sleep(0.5)
+        sleep(0.5)
 
     def CheckOB(self):
         subprocess.Popen(
             ['python3', '../flipperzero-firmware/scripts/ob.py', 'check'])
-        time.sleep(0.5)
+        sleep(0.5)
 
     def ExitDFU(self):
         subprocess.Popen(['python3', 'pydfu.py', '-x'])
-        time.sleep(0.5)
+        sleep(0.5)
 
     def version(self):
         port = FlipperSerial(self.args.port)
@@ -123,7 +123,7 @@ class Main:
         port = FlipperSerial(self.args.port)
         port.start()
         tests.powermax(port)
-        time.sleep(3)
+        sleep(3)
         tests.powermin(port)
         tests.PowerInfo(port)
         self.imageFile('Power.png')
@@ -195,35 +195,35 @@ class Main:
               port.start()
               data = port.RPC_start()
               print(data)
-              time.sleep(1)
+              sleep(1)
               port.RPC_stop()
               print('Session terminated\r')
               port.stop()  
-              time.sleep(1)
+              sleep(1)
             else:
               ATTEMPT += 1
               print("Port no found for " + str(ATTEMPT) + " sec.",end="\r", flush=True)
-            time.sleep(1)
+            sleep(1)
         port.stop()    
 
 
     def UsbTest(self):
         ATTEMPT = 0
-        START_DATE = str(datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
+        START_DATE = str(datenow().strftime("%d/%m/%Y %H:%M:%S"))
         print("Run at: " + START_DATE)
         while(1):
             if (os.system(f'ls {self.args.port}')==0):
               print("                                                              ",end="\r", flush=True)
               print("Port opened!", end="\r", flush=True)
               subprocess.Popen(['python3', 'reboot.py', self.args.port, 'dfu'])
-              time.sleep(1.5)
+              sleep(1.5)
               self.ExitDFU()
-              time.sleep(2)
+              sleep(2)
               ATTEMPT = 0
             else:
               ATTEMPT += 1
               print("Port no found for " + str(ATTEMPT) + " sec.",end="\r", flush=True)
-            time.sleep(1)
+            sleep(1)
 
     def NfcTest(self):
         port = FlipperSerial(self.args.port)
@@ -231,7 +231,7 @@ class Main:
         portr.start()
         port.start()
         datar = portr.send_and_wait_ctrl("nfc emulate")
-        time.sleep(1.5)
+        sleep(1.5)
         data = port.send_and_wait_prompt("nfc detect")
         portr.CTRLc()
         #print(repr(data))
@@ -246,19 +246,19 @@ class Main:
         portr = FlipperSerial(self.args.portref)
         portr.start()
         port.start()
-        datar = portr.send_and_wait_ctrl("rfid emulate H10301 F4DBAC")
-        time.sleep(1)
+        datar = portr.send_and_wait_ctrl("rfid emulate EM4100 DC69660F12")
+        sleep(1)
         data = port.send_and_wait_prompt("rfid read")
         portr.CTRLc()
-        datar = portr.send_and_wait_ctrl("rfid emulate EM4100 DC69660F12")
-        time.sleep(1)
+        datar = portr.send_and_wait_ctrl("rfid emulate H10301 F4DBAC")  
+        sleep(1)
         data = port.send_and_wait_prompt("rfid read") + data
         portr.CTRLc()
         datar = portr.send_and_wait_ctrl("rfid emulate I40134 B82191")
-        time.sleep(1)
+        sleep(1)
         data = port.send_and_wait_prompt("rfid read") + data
         portr.CTRLc()
-        #print(repr(data))
+        # print(repr(data))
         if data == Ref.Lfrfid:
             print('Ok')
         else: print('Fail')
@@ -271,15 +271,15 @@ class Main:
         portr.start()
         port.start()
         datar = portr.send_and_wait_ctrl("ikey emulate Dallas 01F637C0010000BA")
-        time.sleep(1)
+        sleep(1)
         data = port.send_and_wait_prompt("ikey read")
         portr.CTRLc()
         datar = portr.send_and_wait_ctrl("ikey emulate Cyfral CEA3")
-        time.sleep(1)
+        sleep(1)
         data = port.send_and_wait_prompt("ikey read") + data
         portr.CTRLc()
         datar = portr.send_and_wait_ctrl("ikey emulate Metakom 8EC04BB2")
-        time.sleep(1)
+        sleep(1)
         data = port.send_and_wait_prompt("ikey read") + data
         portr.CTRLc()
         #print(repr(data))
@@ -295,15 +295,15 @@ class Main:
         portr.start()
         port.start()
         void = port.send("ir rx")
-        time.sleep(1)
+        sleep(1)
         datar = portr.send_and_wait_prompt("ir tx Samsung32 0x0E 0x0C")
-        time.sleep(1)
+        sleep(1)
         datar = portr.send_and_wait_prompt("ir tx RC5 0x04 0x2E")
-        time.sleep(1)
+        sleep(1)
         datar = portr.send_and_wait_prompt("ir tx NEC 0x04 0xD1")
-        time.sleep(1)
+        sleep(1)
         port.CTRLc()
-        time.sleep(0.1)
+        sleep(0.1)
         data = port.read_until_promp()
         #print(repr(data))
         if data == Ref.ir:
@@ -316,11 +316,11 @@ class Main:
         port = FlipperSerial(self.args.port)
         port.start()
         port.send_and_wait_eol("crypto decrypt 1 cdf1298be4de2ad417fd24ae38537f7b")
-        time.sleep(1)
+        sleep(1)
         port.send_and_wait_eol("ebc4c98c04abe19eee1c2885cd7a2d22881a1d2235facc71598b39f7f7b31d69")
-        time.sleep(1)
+        sleep(1)
         port.CTRLc()
-        time.sleep(0.1)
+        sleep(0.1)
         data = port.read_until_promp()
         print(data)
         port.stop()
@@ -332,29 +332,29 @@ class Main:
         portr.start()
         port.start()
         port.send("subghz rx 433920000")
-        time.sleep(1)
+        sleep(1)
         portr.send_and_wait_prompt("subghz tx 74bada 433920000 10")
-        time.sleep(1)
+        sleep(1)
         port.CTRLc()
-        time.sleep(0.1)
+        sleep(0.1)
         data = port.read_until_promp()
-        time.sleep(0.1)
+        sleep(0.1)
         port.send("subghz rx 315000000")
-        time.sleep(1)
+        sleep(1)
         portr.send_and_wait_prompt("subghz tx 74badb 315000000 10")
-        time.sleep(1)
+        sleep(1)
         port.CTRLc()
-        time.sleep(0.1)
+        sleep(0.1)
         data = port.read_until_promp() + data
-        time.sleep(0.1)
+        sleep(0.1)
         port.send("subghz rx 868350000")
-        time.sleep(1)
+        sleep(1)
         portr.send_and_wait_prompt("subghz tx 74badc 868350000 10")
-        time.sleep(1)
+        sleep(1)
         port.CTRLc()
-        time.sleep(0.1)
+        sleep(0.1)
         data = port.read_until_promp() +data
-        time.sleep(0.1)
+        sleep(0.1)
         #print(repr(data))
         if data == Ref.SubGhz:
             print('Ok')
@@ -404,18 +404,35 @@ class Main:
 
     def RfidGuiTest(self):
         port = FlipperSerial(self.args.port)
+        portr = FlipperSerial(self.args.portref)
         port.start()
+        portr.start()
         tests.lfrfid_em_create(port)
+        data = portr.send_and_wait_prompt("rfid read")
+        sleep(1)
         port.imageFile('EmRFID1.png')
-        time.sleep(3)
         tests.lfrfid_hid_create(port)
+        data = portr.send_and_wait_prompt("rfid read") + data
+        sleep(1)
         port.imageFile('EmRFID2.png')
+        tests.lfrfid_indala_create(port)
+        data = portr.send_and_wait_prompt("rfid read") + data
+        sleep(1)
+        port.imageFile('EmRFID3.png')
         port.main()
+        print(repr(data))
         if ImageCompare.compare('EmRFID1.png') == None:
+            # print('Em1')
             if ImageCompare.compare('EmRFID2.png') == None:
-                print('Ok')
+                # print('Em2')
+                if ImageCompare.compare('EmRFID3.png') == None:
+                    # print('Em3')
+                    if data == Ref.Lfrfid:
+                        print('Ok')
+                    else: print('Fail')
         else: print('Fail')
         port.stop()
+        portr.stop()
 
 if __name__ == "__main__":
     Main()()

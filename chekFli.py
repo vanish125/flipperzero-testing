@@ -35,6 +35,10 @@ class Main:
 
     def Full(self):
 
+        tempdir = "out/"
+        filelist = [ f for f in os.listdir(tempdir)]
+        for f in filelist:
+            os.remove(os.path.join(tempdir, f))
         if (os.path.isfile('./test_log.txt') == True):
             os.remove("test_log.txt")
         if (os.path.isfile('./test_log.json') == True):
@@ -48,7 +52,6 @@ class Main:
                         'RfidTest',
                         'iKeyTest',
                         'IrTest',
-                        'PowerTest'
                         )
 
         for test in two_port_func:
@@ -76,7 +79,8 @@ class Main:
                         'PowerInfo',
                         'BTcheck',
                         'IntFree',
-                        'CryptoCheck'
+                        'CryptoCheck',
+                        'PowerTest'
                         )
 
         for test in one_port_func:
