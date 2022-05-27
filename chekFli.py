@@ -29,9 +29,9 @@ class Main:
 
     def test(self):
         print("Start2")
-        test = 'PowerTest'
+        t = 'test'
         feed_back = subprocess.run(
-                ['python3', './script.py', '-p/dev/ttyACM0', '-r/dev/ttyACM1', test])
+                ['python3', './script.py', '-p/dev/ttyACM0', '-r/dev/ttyACM1', t])
 
     def Full(self):
 
@@ -61,16 +61,12 @@ class Main:
             
             json_data = {'Test:' : test, 'Returncode - ': feed_back.returncode}   
             log_json.write(json.dumps(json_data))
-            
             log_json.write('\n')
-
 
             log_txt.write(str(feed_back))
             log_txt.write('\n')
 
             feed_back = 1
-
-
 
         # --------------------one port feature testing------------------------
         # 'UsbTest',
@@ -79,8 +75,6 @@ class Main:
         # 'RPSTest',
         #
 
-
-
         one_port_func = ('HeapTest',
                         'PowerInfo',
                         'BTcheck',
@@ -88,7 +82,6 @@ class Main:
                         'CryptoCheck',
                         'PowerTest'
                         )
-
 
         for test in one_port_func:
 

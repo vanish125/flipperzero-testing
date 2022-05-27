@@ -4,7 +4,10 @@ from numpy import void
 from flipper.serial import FlipperSerial
 from flipper.serial import ImageCompare
 from flipper.tests import tests
+from runner_func import SupportFunction #support function
+
 from orig.reference import Ref
+from const import cnt
 import logging
 import argparse
 import os
@@ -67,6 +70,9 @@ class Main:
         self.parser_RfidGuiTest = self.subparsers.add_parser("RfidGuiTest", help="RfidGuiTest")
         self.parser_RfidGuiTest.set_defaults(func=self.RfidGuiTest)
 
+        self.parser_IrTestGui = self.subparsers.add_parser("IrTestGui", help="IrTestGui")
+        self.parser_IrTestGui.set_defaults(func=self.IrTestGui)
+
     def __call__(self):
         self.args = self.parser.parse_args()
         if "func" not in self.args:
@@ -86,6 +92,7 @@ class Main:
 
     def image(self):
         self.imageFile(self.args.name)
+    
 
     def imageFile(self, line):
         port = FlipperSerial(self.args.port)
@@ -354,6 +361,46 @@ class Main:
         else: print('Fail')
         portr.stop()
         port.stop()
+
+    def IrTestGui(self):
+        port = FlipperSerial(self.args.port)
+        portr = FlipperSerial(self.args.portref)
+        portr.start()
+        port.start()
+        #SupportFunction.open_universal_lib(portr)
+
+        # num = (cnt.MUTE, cnt.VOL_UP, cnt.VOL_DOWN, cnt.CH_UP, cnt.CH_DOWN) 
+        # for nextb in num:  
+
+        #     void = port.send("ir rx")
+        #     SupportFunction.button_press(portr, nextb)
+        #     port.CTRLc()
+        #     data = port.read_until_promp()
+        #     response = SupportFunction.check_correctness(nextb, data)
+        #     print(response)
+        #     data = ''
+        # port.main()
+
+        SupportFunction.learn_new_remote(port, portr)
+            
+
+
+        # time.sleep(1)
+        # datar = portr.send_and_wait_prompt("ir tx Samsung32 0x0E 0x0C")
+        # time.sleep(1)
+        # datar = portr.send_and_wait_prompt("ir tx RC5 0x04 0x2E")
+        # time.sleep(1)
+        # datar = portr.send_and_wait_prompt("ir tx NEC 0x04 0xD1")
+        # time.sleep(1)
+        # port.CTRLc()
+        # time.sleep(0.1)
+        # data = port.read_until_promp()
+        # print(repr(data))
+        # if data == Ref.ir:
+        #     print('Ok')
+        # else: print('Fail')
+        # portr.stop()
+        # port.stop()
 
     def RfidGuiTest(self):
         port = FlipperSerial(self.args.port)

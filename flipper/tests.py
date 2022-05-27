@@ -3,7 +3,6 @@ from .serial import FlipperHEXKeyboard
 from .serial import FlipperTextKeyboard
 from time import sleep
 
-
 class tests:
 
     def FW(self):
@@ -133,4 +132,3 @@ class tests:
         self.key('SHORT OK')
         sleep(0.1)
         self.key('SHORT OK')
-        sleep(1)
