@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+from cgi import test
 from numpy import void
 from flipper.serial import FlipperSerial
 from flipper.serial import ImageCompare
@@ -420,17 +421,20 @@ class Main:
         sleep(1)
         port.imageFile('EmRFID3.png')
         port.main()
-        print(repr(data))
-        if ImageCompare.compare('EmRFID1.png') == None:
-            # print('Em1')
-            if ImageCompare.compare('EmRFID2.png') == None:
-                # print('Em2')
-                if ImageCompare.compare('EmRFID3.png') == None:
-                    # print('Em3')
-                    if data == Ref.Lfrfid:
-                        print('Ok')
-                    else: print('Fail')
+        # print(repr(data))
+        if ImageCompare.compare('EmRFID1.png') == None and ImageCompare.compare('EmRFID2.png') == None and ImageCompare.compare('EmRFID3.png') == None and data == Ref.Lfrfid:
+            print('Ok')
         else: print('Fail')
+        portr.send_and_wait_ctrl("rfid emulate EM4100 DC69660F12")
+        tests.lfrfid_read_and_save(port)
+        portr.CTRLc()
+        port.imageFile('EmRFID4.png')
+        data = portr.send_and_wait_prompt("rfid read")
+        # print(repr(data))
+        if ImageCompare.compare('EmRFID4.png') == None and data == 'd\r\nReading RFID...\r\nPress Ctrl+C to abort\r\nEM4100 DC69660F12\r\nReading stopped\r\n\r\n':
+            print('Ok')
+        else: print('Fail')
+        port.main()
         port.stop()
         portr.stop()
 
