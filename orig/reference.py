@@ -10,3 +10,4 @@ class Ref:
     VOLM = 'ir rx\r\nReceiving INFRARED...\r\nPress Ctrl+C to abort\r\nNEC, A:0x08, C:0x01\r\nNECext, A:0xDF00, C:0x004F\r\nSamsung32, A:0x0E, C:0x15\r\n\r\n'
     CHP = 'ir rx\r\nReceiving INFRARED...\r\nPress Ctrl+C to abort\r\nNEC, A:0x08, C:0x02\r\nNECext, A:0xDF00, C:0x0009\r\nSamsung32, A:0x0E, C:0x12\r\n\r\n'
     CHM = 'ir rx\r\nReceiving INFRARED...\r\nPress Ctrl+C to abort\r\nNEC, A:0x08, C:0x03\r\nNECext, A:0xDF00, C:0x0005\r\nSamsung32, A:0x0E, C:0x13\r\n\r\n'
+    INFR = 'ir rx\r\nReceiving INFRARED...\r\nPress Ctrl+C to abort\r\nSamsung32, A:0x0E, C:0x0C\r\n\r\n'

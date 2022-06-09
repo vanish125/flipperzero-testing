@@ -29,9 +29,7 @@ class Main:
 
     def test(self):
         print("Start2")
-        t = 'test'
-        feed_back = subprocess.run(
-                ['python3', './script.py', '-p/dev/ttyACM0', '-r/dev/ttyACM1', t])
+        
 
     def Full(self):
 
