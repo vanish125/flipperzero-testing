@@ -186,7 +186,7 @@ class FlipperSerial:
     def __init__(self, portname: str):
         self.port = serial.Serial()
         self.port.port = portname
-        self.port.timeout = 2
+        self.port.timeout = None
         self.port.baudrate = 230400
         self.read = BufferedRead(self.port)
         self.last_error = ""
@@ -240,19 +240,27 @@ class FlipperSerial:
         return error_text.strip()
 
     def main(self):
-        for i in range(5):
-            self.key("SHORT BACK")
-            sleep(0.01)
-        self.key("SHORT LEFT")
-        for i in range(2):
-            self.key("SHORT BACK")
-            sleep(0.01)
+        if self.send_and_wait_prompt('loader open "Blink Test"') == '\n\r\n':
+            sleep(0.1)
+            for i in range(4):
+                self.key("SHORT BACK")
+                sleep(0.05)
+        else:
+            for i in range(4):
+                self.key("SHORT BACK")
+                sleep(0.05)
+            self.key("SHORT LEFT")
+            for i in range(3):
+                self.key("SHORT BACK")
+                sleep(0.05)
 
     def CTRLc(self):
         self.port.write(b'\x03')
         sleep(0.1)
 
     def RPC_start(self):
+        self.port.flushOutput()
+        self.port.flushInput()
         return self.send_and_wait_eol("start_rpc_session")
 
     def RPC_stop(self):
@@ -274,11 +282,11 @@ class FlipperSerial:
         if key != 'UP' and key != 'DOWN' and key != 'LEFT' and key != 'RIGHT' and key != 'OK' and key != 'BACK':
             raise InputTypeException('Incorrect key')
 
-        self.send('input send ' + key.lower() + ' press')
+        self.send_and_wait_prompt('input send ' + key.lower() + ' press')
         #print('input send '+ key.lower()+ ' press')
-        self.send('input send ' + key.lower() + ' ' + type.lower())
+        self.send_and_wait_prompt('input send ' + key.lower() + ' ' + type.lower())
         #print('input send '+ key.lower()+ ' '+ type.lower())
-        self.send('input send ' + key.lower() + ' release')
+        self.send_and_wait_prompt('input send ' + key.lower() + ' release')
         #print('input send '+ key.lower()+ ' release')
 
     def imageFile(self, name):

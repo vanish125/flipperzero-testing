@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-from cgi import test
 from numpy import void
 from flipper.serial import FlipperSerial
 from flipper.serial import ImageCompare
@@ -15,7 +14,7 @@ import os
 import sys
 import subprocess
 from time import sleep
-from datetime import datetime
+from datetime import date
 
 BTstring = 'Ret: 0, HCI_Version: 11, HCI_Revision: 87, LMP_PAL_Version: 11, Manufacturer_Name: 48, LMP_PAL_Subversion: 8535\n\r'
 
@@ -70,6 +69,10 @@ class Main:
         self.parser_SubGhzTest.set_defaults(func=self.SubGhzTest)
         self.parser_RfidGuiTest = self.subparsers.add_parser("RfidGuiTest", help="RfidGuiTest")
         self.parser_RfidGuiTest.set_defaults(func=self.RfidGuiTest)
+        self.parser_NfcGuiTest = self.subparsers.add_parser("NfcGuiTest", help="NfcGuiTest")
+        self.parser_NfcGuiTest.set_defaults(func=self.NfcGuiTest)
+        self.parser_iKeyGuiTest = self.subparsers.add_parser("iKeyGuiTest", help="iKeyGuiTest")
+        self.parser_iKeyGuiTest.set_defaults(func=self.iKeyGuiTest)
 
         self.parser_IrTestGui = self.subparsers.add_parser("IrTestGui", help="IrTestGui")
         self.parser_IrTestGui.set_defaults(func=self.IrTestGui)
@@ -114,8 +117,6 @@ class Main:
     def version(self):
         port = FlipperSerial(self.args.port)
         port.start()
-        tests.Boot(port)
-        self.imageFile('Boot.png')
         tests.FW(port)
         self.imageFile('FW.png')
         port.stop()
@@ -210,7 +211,7 @@ class Main:
 
     def UsbTest(self):
         ATTEMPT = 0
-        START_DATE = str(datenow().strftime("%d/%m/%Y %H:%M:%S"))
+        START_DATE = str(date.now().strftime("%d/%m/%Y %H:%M:%S"))
         print("Run at: " + START_DATE)
         while(1):
             if (os.system(f'ls {self.args.port}')==0):
@@ -247,15 +248,15 @@ class Main:
         portr = FlipperSerial(self.args.portref)
         portr.start()
         port.start()
-        datar = portr.send_and_wait_ctrl("rfid emulate EM4100 DC69660F12")
+        portr.send_and_wait_ctrl("rfid emulate EM4100 DC69660F12")
         sleep(1)
         data = port.send_and_wait_prompt("rfid read")
         portr.CTRLc()
-        datar = portr.send_and_wait_ctrl("rfid emulate H10301 F4DBAC")  
+        portr.send_and_wait_ctrl("rfid emulate H10301 F4DBAC")  
         sleep(1)
         data = port.send_and_wait_prompt("rfid read") + data
         portr.CTRLc()
-        datar = portr.send_and_wait_ctrl("rfid emulate I40134 B82191")
+        portr.send_and_wait_ctrl("rfid emulate I40134 B82191")
         sleep(1)
         data = port.send_and_wait_prompt("rfid read") + data
         portr.CTRLc()
@@ -271,15 +272,15 @@ class Main:
         portr = FlipperSerial(self.args.portref)
         portr.start()
         port.start()
-        datar = portr.send_and_wait_ctrl("ikey emulate Dallas 01F637C0010000BA")
+        portr.send_and_wait_ctrl("ikey emulate Dallas 01F637C0010000BA")
         sleep(1)
         data = port.send_and_wait_prompt("ikey read")
         portr.CTRLc()
-        datar = portr.send_and_wait_ctrl("ikey emulate Cyfral CEA3")
+        portr.send_and_wait_ctrl("ikey emulate Cyfral CEA3")
         sleep(1)
         data = port.send_and_wait_prompt("ikey read") + data
         portr.CTRLc()
-        datar = portr.send_and_wait_ctrl("ikey emulate Metakom 8EC04BB2")
+        portr.send_and_wait_ctrl("ikey emulate Metakom 8EC04BB2")
         sleep(1)
         data = port.send_and_wait_prompt("ikey read") + data
         portr.CTRLc()
@@ -297,11 +298,11 @@ class Main:
         port.start()
         void = port.send("ir rx")
         sleep(1)
-        datar = portr.send_and_wait_prompt("ir tx Samsung32 0x0E 0x0C")
+        portr.send_and_wait_prompt("ir tx Samsung32 0x0E 0x0C")
         sleep(1)
-        datar = portr.send_and_wait_prompt("ir tx RC5 0x04 0x2E")
+        portr.send_and_wait_prompt("ir tx RC5 0x04 0x2E")
         sleep(1)
-        datar = portr.send_and_wait_prompt("ir tx NEC 0x04 0xD1")
+        portr.send_and_wait_prompt("ir tx NEC 0x04 0xD1")
         sleep(1)
         port.CTRLc()
         sleep(0.1)
@@ -323,7 +324,10 @@ class Main:
         port.CTRLc()
         sleep(0.1)
         data = port.read_until_promp()
-        print(data)
+        # print(repr(data))
+        if data == Ref.Crypto:
+            print('Ok')
+        else: print('Fail')
         port.stop()
 
 
@@ -437,6 +441,45 @@ class Main:
         port.main()
         port.stop()
         portr.stop()
+
+    def NfcGuiTest(self):
+        port = FlipperSerial(self.args.port)
+        port.start()
+        data = port.send_and_wait_prompt('loader open "Blink Test"')
+        print(repr(data))
+        port.stop
+
+
+    def iKeyGuiTest(self):
+        port = FlipperSerial(self.args.port)
+        portr = FlipperSerial(self.args.portref)
+        port.start()
+        portr.start()
+        portr.send_and_wait_ctrl("ikey emulate Dallas 01F637C0010000BA")
+        tests.ikey_read_save_and_emu_dall(port)
+        portr.CTRLc()
+        sleep(0.1)
+        data = portr.send_and_wait_prompt("ikey read")
+        sleep(1)
+        portr.send_and_wait_ctrl("ikey emulate Cyfral CEA3")
+        tests.ikey_read_save_and_emu_cyf(port)
+        portr.CTRLc()
+        sleep(0.1)
+        data = portr.send_and_wait_prompt("ikey read") + data
+        sleep(1)
+        portr.send_and_wait_ctrl("ikey emulate Metakom 8EC04BB2")
+        tests.ikey_read_save_and_emu_met(port)
+        portr.CTRLc()
+        sleep(0.1)
+        data = portr.send_and_wait_prompt("ikey read") + data
+        print(repr(data))
+        if data == Ref.iKeyGui:
+            print('Ok')
+        else: print('Fail')
+        port.main()
+        portr.stop
+        port.stop
+
 
 if __name__ == "__main__":
     Main()()
