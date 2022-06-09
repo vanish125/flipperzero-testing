@@ -12,4 +12,4 @@ class Ref:
     CHP = 'ir rx\r\nReceiving INFRARED...\r\nPress Ctrl+C to abort\r\nNEC, A:0x08, C:0x02\r\nNECext, A:0xDF00, C:0x0009\r\nSamsung32, A:0x0E, C:0x12\r\n\r\n'
     CHM = 'ir rx\r\nReceiving INFRARED...\r\nPress Ctrl+C to abort\r\nNEC, A:0x08, C:0x03\r\nNECext, A:0xDF00, C:0x0005\r\nSamsung32, A:0x0E, C:0x13\r\n\r\n'
     Crypto = 'ebc4c98c04abe19eee1c2885cd7a2d22881a1d2235facc71598b39f7f7b31d69\r\n\r\nDecrypted data:\r\nHello from Flipper!\r\n\r\n\r\n'
-    
+    INFR = 'ir rx\r\nReceiving INFRARED...\r\nPress Ctrl+C to abort\r\nSamsung32, A:0x0E, C:0x0C\r\n\r\n'

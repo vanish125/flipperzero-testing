@@ -218,6 +218,7 @@ class FlipperSerial:
         data = self.read.until(self.CLI_PROMPT).decode("ascii")
         data = data[len(line)+1:]
         return data
+    
 
     def send_and_wait_ctrl(self, line):
         self.send(line)
@@ -313,6 +314,7 @@ class FlipperSerial:
                 basey += 8
                 x = 0
         # export to image file:
+
         scale = 3
         col_black = [0x11, 0x11, 0x11]
         col_white = [0xff, 0x8c, 0x29]
@@ -336,5 +338,28 @@ class FlipperSerial:
         im = Image.new('RGB', (res_x, res_y))
         im = Image.fromarray(img)
         im.save(f'{image_path}/{name}')
-        #print('Saved to', name)
+        # print('Saved to', name)
         self.RPC_stop()
+    
+    def imageFile2(self):
+        # 16
+        # 12
+        # wh 384 - 128
+        # d 192 - 64
+        
+        #0
+        im = Image.open('./out/find.png')
+        cropped = im.crop((0, 0, 384, 48))
+        cropped.save('./comp/modif/0.png')
+        #1
+        im = Image.open('./out/find.png')
+        cropped = im.crop((0, 45, 384, 81))
+        cropped.save('./comp/modif/1.png')
+        #2
+        im = Image.open('./out/find.png')
+        cropped = im.crop((0, 81, 384, 117))
+        cropped.save('./comp/modif/2.png')
+        # .save(f'{image_path}/{name}')
+        # os.remove(path, *, dir_fd=None)
+
+        

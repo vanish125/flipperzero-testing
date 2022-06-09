@@ -76,6 +76,10 @@ class Main:
 
         self.parser_IrTestGui = self.subparsers.add_parser("IrTestGui", help="IrTestGui")
         self.parser_IrTestGui.set_defaults(func=self.IrTestGui)
+        self.parser_GPIOGui = self.subparsers.add_parser("GPIOGui", help="GPIOGui")
+        self.parser_GPIOGui.set_defaults(func=self.GPIOGui)
+        self.parser_SubGHzTestGui = self.subparsers.add_parser("SubGHzTestGui", help="SubGHzTestGui")
+        self.parser_SubGHzTestGui.set_defaults(func=self.SubGHzTestGui)
 
     def __call__(self):
         self.args = self.parser.parse_args()
@@ -372,41 +376,84 @@ class Main:
         portr = FlipperSerial(self.args.portref)
         portr.start()
         port.start()
-        #SupportFunction.open_universal_lib(portr)
+        SupportFunction.open_universal_lib(port)
 
-        # num = (cnt.MUTE, cnt.VOL_UP, cnt.VOL_DOWN, cnt.CH_UP, cnt.CH_DOWN) 
-        # for nextb in num:  
-
-        #     void = port.send("ir rx")
-        #     SupportFunction.button_press(portr, nextb)
-        #     port.CTRLc()
-        #     data = port.read_until_promp()
-        #     response = SupportFunction.check_correctness(nextb, data)
-        #     print(response)
-        #     data = ''
-        # port.main()
+        num = (cnt.MUTE, cnt.VOL_UP, cnt.VOL_DOWN, cnt.CH_UP, cnt.CH_DOWN)
+        
+        for nextb in num: 
+            void = portr.send("ir rx")
+            sleep(1)
+            SupportFunction.button_press(port, nextb)
+            sleep(1)
+            portr.CTRLc()
+            data = portr.read_until_promp()
+            SupportFunction.check_correctness(nextb, data)
+            data = ''
+        
+        SupportFunction.main_back(port)
 
         SupportFunction.learn_new_remote(port, portr)
-            
+        SupportFunction.main_back(port)  
+        feedback = SupportFunction.check_saved_remotes(port, portr)
+        if feedback == 1:
+            SupportFunction.main_back(port)
+            feedback = SupportFunction.add_button_to_remote(port, portr)
+            if feedback == 1:
+                SupportFunction.main_back(port)
+                feedback = SupportFunction.add_button_to_remote_edit(port, portr)
+                if feedback == 1:
+                    SupportFunction.main_back(port)
+                    feedback = SupportFunction.rename_button_zero(port, portr)
+                    if feedback == 1:
+                        SupportFunction.main_back(port)
+                        feedback = SupportFunction.rename_remote(port, portr)
+                        if feedback == 1:
+                            feedback = 'All test'
+                            SupportFunction.print_feedback('try', feedback)
+                            SupportFunction.main_back(port)
+                    elif feedback == 0:
+                        SupportFunction.main_back(port)
+                        feedback = 'All test'
+                        SupportFunction.print_feedback('false', feedback)
+                elif feedback == 0:
+                    SupportFunction.main_back(port)
+                    feedback = 'All test'
+                    SupportFunction.print_feedback('false', feedback)
+            elif feedback == 0:
+                SupportFunction.main_back(port)
+                feedback = 'All test'
+                SupportFunction.print_feedback('false', feedback)
+        elif feedback == 0:
+            SupportFunction.main_back(port)
+            feedback = 'All test'
+            SupportFunction.print_feedback('false', feedback) 
 
+        print('End of testing')
+        portr.stop()
+        port.stop()
+    
+    def SubGHzTestGui(self):
+        port = FlipperSerial(self.args.port)
+        port.start()
+        serial_number = SupportFunction.serial_number_file(port, 'subghz', 'Gate_TX_433.sub')
+        print(serial_number)
+        SupportFunction.add_manually(port, 'Gate_TX_433')
+        
+        port.stop()
+    
+    def GPIOGui(self):
+        port = FlipperSerial(self.args.port)
+        portr = FlipperSerial(self.args.portref)
+        portr.start()
+        port.start()
+        SupportFunction.open_GPIO(port)
+        SupportFunction.check_5v(port)
+        SupportFunction.check_manual_control(port)
+        print('End of testing')
+        portr.stop()
+        port.stop()
 
-        # time.sleep(1)
-        # datar = portr.send_and_wait_prompt("ir tx Samsung32 0x0E 0x0C")
-        # time.sleep(1)
-        # datar = portr.send_and_wait_prompt("ir tx RC5 0x04 0x2E")
-        # time.sleep(1)
-        # datar = portr.send_and_wait_prompt("ir tx NEC 0x04 0xD1")
-        # time.sleep(1)
-        # port.CTRLc()
-        # time.sleep(0.1)
-        # data = port.read_until_promp()
-        # print(repr(data))
-        # if data == Ref.ir:
-        #     print('Ok')
-        # else: print('Fail')
-        # portr.stop()
-        # port.stop()
-
+    
     def RfidGuiTest(self):
         port = FlipperSerial(self.args.port)
         portr = FlipperSerial(self.args.portref)
